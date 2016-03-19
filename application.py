@@ -152,7 +152,6 @@ class CasparCGController(QtGui.QMainWindow, design.Ui_MainWindow):
 		self.qbyq_update.clicked.connect(lambda: self.qbyq_handler('UPDATE'))
 		self.qbyq_table.currentCellChanged.connect(lambda: self.qbyq_handler('FILL TOTAL'))
 
-
 		self.score3_play.clicked.connect(lambda: self.score3_handler('ADD'))
 		self.score3_stop.clicked.connect(lambda: self.score3_handler('STOP'))
 		self.score3_update.clicked.connect(lambda: self.score3_handler('UPDATE'))
@@ -160,6 +159,8 @@ class CasparCGController(QtGui.QMainWindow, design.Ui_MainWindow):
 		self.score2_play.clicked.connect(lambda: self.score2_handler('ADD'))
 		self.score2_stop.clicked.connect(lambda: self.score2_handler('STOP'))
 		self.score2_update.clicked.connect(lambda: self.score2_handler('UPDATE'))
+
+		#self.stop_all_except_scoreboard.clicked.connect(lambda: self.stop_all())
 
 
 	def stat_percentage(self, statistic): # Sample input: '0 - 0', '2 - 10', sample output: '0%', '20%'
@@ -549,13 +550,13 @@ class CasparCGController(QtGui.QMainWindow, design.Ui_MainWindow):
 
 	def score3_handler(self, command):
 		_dict = dict(
-		f0 = 			self.score3_title.text().encode('utf-8'),
-		home_name = 	self.score3_home_team.text().encode('utf-8'),
-		away_name = 	self.score3_away_team.text().encode('utf-8'),
-		home_score = 	self.SERIAL_data['home_score'].encode('utf-8'),
-		away_score = 	self.SERIAL_data['away_score'].encode('utf-8'),
-		src_home = 		self.API_data['home']['logo_src'].encode('utf-8'),
-		src_away = 		self.API_data['guest']['logo_src'].encode('utf-8')
+			f0 = 			self.score3_title.text().encode('utf-8'),
+			home_name = 	self.score3_home_team.text().encode('utf-8'),
+			away_name = 	self.score3_away_team.text().encode('utf-8'),
+			home_score = 	self.SERIAL_data['home_score'].encode('utf-8'),
+			away_score = 	self.SERIAL_data['away_score'].encode('utf-8'),
+			src_home = 		self.API_data['home']['logo_src'].encode('utf-8'),
+			src_away = 		self.API_data['guest']['logo_src'].encode('utf-8')
 		)
 
 		if(command == 'ADD'):
@@ -570,12 +571,12 @@ class CasparCGController(QtGui.QMainWindow, design.Ui_MainWindow):
 	
 	def score2_handler(self, command):
 		_dict = dict(
-		home_score = 	self.SERIAL_data['home_score'].encode('utf-8'),
-		away_score = 	self.SERIAL_data['away_score'].encode('utf-8'),
-		status = 		self.SERIAL_data['quarter'].encode('utf-8'),
-		game_time = 	self.SERIAL_data['game_clock'].encode('utf-8'),
-		src_home = 		self.API_data['home']['logo_src'].encode('utf-8'),
-		src_away = 		self.API_data['guest']['logo_src'].encode('utf-8')
+			home_score = 	self.SERIAL_data['home_score'].encode('utf-8'),
+			away_score = 	self.SERIAL_data['away_score'].encode('utf-8'),
+			status = 		self.SERIAL_data['quarter'].encode('utf-8'),
+			game_time = 	self.SERIAL_data['game_clock'].encode('utf-8'),
+			src_home = 		self.API_data['home']['logo_src'].encode('utf-8'),
+			src_away = 		self.API_data['guest']['logo_src'].encode('utf-8')
 		)
 
 		if(command == 'ADD'):
@@ -590,21 +591,21 @@ class CasparCGController(QtGui.QMainWindow, design.Ui_MainWindow):
 
 	def qbyq_handler(self, command):
 		_dict = dict(
-		f0 = self.qbyq_title.text().encode('utf-8'),
-		home_name = self.qbyq_home_team.text().encode('utf-8'),
-		away_name = self.qbyq_away_team.text().encode('utf-8'),
-		home_q1 = self.qbyq_table.item(0, 0).text().encode('utf-8'),
-		home_q2 = self.qbyq_table.item(0, 1).text().encode('utf-8'),
-		home_q3 = self.qbyq_table.item(0, 2).text().encode('utf-8'),
-		home_q4 = self.qbyq_table.item(0, 3).text().encode('utf-8'),
-		away_q1 = self.qbyq_table.item(1, 0).text().encode('utf-8'),
-		away_q2 = self.qbyq_table.item(1, 1).text().encode('utf-8'),
-		away_q3 = self.qbyq_table.item(1, 2).text().encode('utf-8'),
-		away_q4 = self.qbyq_table.item(1, 3).text().encode('utf-8'),
-		home_score = self.qbyq_home_score.text().encode('utf-8'),
-		away_score = self.qbyq_away_score.text().encode('utf-8'),
-		src_home = 'teams/' + self.qbyq_home_team.text().encode('utf-8') + '.png',
-		src_away = 'teams/' + self.qbyq_away_team.text().encode('utf-8') + '.png'
+			f0 = self.qbyq_title.text().encode('utf-8'),
+			home_name = self.qbyq_home_team.text().encode('utf-8'),
+			away_name = self.qbyq_away_team.text().encode('utf-8'),
+			home_q1 = self.qbyq_table.item(0, 0).text().encode('utf-8'),
+			home_q2 = self.qbyq_table.item(0, 1).text().encode('utf-8'),
+			home_q3 = self.qbyq_table.item(0, 2).text().encode('utf-8'),
+			home_q4 = self.qbyq_table.item(0, 3).text().encode('utf-8'),
+			away_q1 = self.qbyq_table.item(1, 0).text().encode('utf-8'),
+			away_q2 = self.qbyq_table.item(1, 1).text().encode('utf-8'),
+			away_q3 = self.qbyq_table.item(1, 2).text().encode('utf-8'),
+			away_q4 = self.qbyq_table.item(1, 3).text().encode('utf-8'),
+			home_score = self.qbyq_home_score.text().encode('utf-8'),
+			away_score = self.qbyq_away_score.text().encode('utf-8'),
+			src_home = self.API_data['home']['logo_src'].encode('utf-8'),
+			src_away = self.API_data['guest']['logo_src'].encode('utf-8')
 		)
 
 		if(command == 'FILL TOTAL'): # Called on QTable exit
@@ -817,15 +818,15 @@ class CasparCGController(QtGui.QMainWindow, design.Ui_MainWindow):
 		info_3 = str(_players[2]['jersey']).encode('utf-8'),
 		info_4 = str(_players[3]['jersey']).encode('utf-8'),
 		info_5 = str(_players[4]['jersey']).encode('utf-8'),
-		src_1 =	_players[0]['headshot_src'].encode('utf-8'),
-		src_2 =	_players[1]['headshot_src'].encode('utf-8'),
-		src_3 =	_players[2]['headshot_src'].encode('utf-8'),
-		src_4 =	_players[3]['headshot_src'].encode('utf-8'),
-		src_5 =	_players[4]['headshot_src'].encode('utf-8'),
+		src_1 =	_players[0]['headshot_src'],
+		src_2 =	_players[1]['headshot_src'],
+		src_3 =	_players[2]['headshot_src'],
+		src_4 =	_players[3]['headshot_src'],
+		src_5 =	_players[4]['headshot_src'],
 		ad_src = self.lineup_ad.currentText().encode('utf-8')
 		)
 
-		if(command == 'ADD')
+		if(command == 'ADD'):
 			self.sendTCP('MIXER 1-51 FILL 0.05 0.0972222 0.9 0.9 0 Linear')
 			self.sendTCP('CG 1-51 ADD 1 "_015 Starting lineup faces-CG" 1 ' + self.dict_to_templateData(_dict))
 
@@ -954,6 +955,23 @@ class CasparCGController(QtGui.QMainWindow, design.Ui_MainWindow):
 
 		if(command == 'UPDATE'):
 			self.sendTCP('CG 1-90 UPDATE 1 ' + self.dict_to_templateData(_dict))
+
+	def stop_all(self):
+		self.sendTCP('CG 1-120 STOP 1')
+		self.sendTCP('CG 1-130 STOP 1')
+		self.sendTCP('CG 1-70 STOP 1')
+		self.sendTCP('CG 1-100 STOP 1')
+		self.sendTCP('CG 1-10 STOP 1')
+		self.sendTCP('CG 1-80 STOP 1')
+		self.sendTCP('CG 1-90 STOP 1')
+		self.sendTCP('CG 1-20 STOP 1')
+		self.sendTCP('CG 1-110 STOP 1')
+		self.sendTCP('CG 1-50 STOP 1')
+		self.sendTCP('CG 1-51 STOP 1')
+		self.sendTCP('CG 1-60 STOP 1')
+		self.sendTCP('CG 1-30 STOP 1')
+
+
 
 	def filePopulator(self, files): # Populate combo boxes after TLS call
 		self.first_comboBox.clear() # STANDINGS
