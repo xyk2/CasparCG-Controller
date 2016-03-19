@@ -23,8 +23,7 @@ TCP_PORT = 5250
 def resource_path(relative_path):
     """ Get absolute path to resource, works for dev and for PyInstaller """
     try:
-        # PyInstaller creates a temp folder and stores path in _MEIPASS
-        base_path = sys._MEIPASS
+        base_path = sys._MEIPASS # PyInstaller creates a temp folder and stores path in _MEIPASS
     except Exception:
         base_path = os.path.abspath(".")
 
@@ -43,13 +42,13 @@ class CasparCGController(QtGui.QMainWindow, design.Ui_MainWindow):
 
 		self.API_data = None # Holds data loaded from API after data formatting
 		self.SERIAL_data = dict(
-		home_score = '',
-		home_fouls = '',
-		away_score = '',
-		away_fouls = '',
-		quarter = '',
-		game_clock = '',
-		shot_clock = ''
+			home_score = '',
+			home_fouls = '',
+			away_score = '',
+			away_fouls = '',
+			quarter = '',
+			game_clock = '',
+			shot_clock = ''
 		) # Holds dict() of serial data (with 0.1)
 
 		self.ipaddress.setText(str(self.qsettings.value("TCP_IP", "192.168.2.100")))
@@ -157,7 +156,7 @@ class CasparCGController(QtGui.QMainWindow, design.Ui_MainWindow):
 		except ZeroDivisionError:
 			return '0%'
 
-	def player_by_ID(self, player_id): # Integer player ID
+	def player_by_ID(self, player_id): # Load player dict from API_data if it exists
 		for player in (self.API_data['homestats'] + self.API_data['awaystats']):
 			if player['player_id'] == player_id:
 				return player
@@ -186,8 +185,8 @@ class CasparCGController(QtGui.QMainWindow, design.Ui_MainWindow):
 		self.API_data['guest']['ft'] 			+= '   (%s)' % self.stat_percentage(self.API_data['guest']['ft'])
 		self.API_data['home']['logo_src'] 		= 'teams/%s.png' % self.API_data['home']['name']
 		self.API_data['guest']['logo_src']		= 'teams/%s.png' % self.API_data['guest']['name']
-		self.API_data['home']['reb_tot'] 	= self.API_data['home']['reb_d'] + self.API_data['home']['reb_o']
-		self.API_data['guest']['reb_tot'] 	= self.API_data['guest']['reb_d'] + self.API_data['guest']['reb_o']
+		self.API_data['home']['reb_tot'] 		= self.API_data['home']['reb_d'] + self.API_data['home']['reb_o']
+		self.API_data['guest']['reb_tot'] 		= self.API_data['guest']['reb_d'] + self.API_data['guest']['reb_o']
 
 		for p in self.API_data['homestats']:
 			p['team'] = self.API_data['home']['name'] # Add team of player into dataset
@@ -202,12 +201,16 @@ class CasparCGController(QtGui.QMainWindow, design.Ui_MainWindow):
 			p['two'] 			= '%s (%s)' %(p['two'].replace(' - ', '/') ,self.stat_percentage(p['two']))
 			p['trey'] 			= '%s (%s)' %(p['trey'].replace(' - ', '/') ,self.stat_percentage(p['trey']))
 			p['ft'] 			= '%s (%s)' %(p['ft'].replace(' - ', '/') ,self.stat_percentage(p['ft']))
+			p['logo_src'] 		= 'teams/%s.png' % p['team']
+
 
 		if(not refreshQObjects): # Load data to API_data only, QObject updates must come from BUTTON
 			return
 
 		#print json.dumps(self.player_by_ID(1387), sort_keys=True, indent=4)
 
+		_lineup_comboBoxes_home = [self.lineup_player_1, self.lineup_player_2, self.lineup_player_3, self.lineup_player_4, self.lineup_player_5]
+		_lineup_comboBoxes_away = [self.lineup_player_b6, self.lineup_player_b7, self.lineup_player_b8, self.lineup_player_b9, self.lineup_player_b10]
 
 		self.indivstats_player.clear()
 		self.lineup_player_1.clear()
@@ -231,7 +234,7 @@ class CasparCGController(QtGui.QMainWindow, design.Ui_MainWindow):
 		self.score3_away_team.setText(self.API_data['guest']['name'])
 
 		for p in self.API_data['homestats']: # Add to QComboBox
-			self.indivstats_player.addItem('%s - #%d %s' % (p['team'], p['jersey'], p['name']), p)
+			self.indivstats_player.addItem('%s - #%d %s' % (p['team'], p['jersey'], p['name']), p['player_id'])
 			self.lineup_player_1.addItem('#%d %s %d' % (p['jersey'], p['name'], p['player_id']), p['player_id'])
 			self.lineup_player_2.addItem('#%d %s %d' % (p['jersey'], p['name'], p['player_id']), p['player_id'])
 			self.lineup_player_3.addItem('#%d %s %d' % (p['jersey'], p['name'], p['player_id']), p['player_id'])
@@ -240,19 +243,27 @@ class CasparCGController(QtGui.QMainWindow, design.Ui_MainWindow):
 
 
 		for p in self.API_data['awaystats']: # Add to QComboBox
-			self.indivstats_player.addItem('%s - #%d %s' % (p['team'], p['jersey'], p['name']), p)
+			self.indivstats_player.addItem('%s - #%d %s' % (p['team'], p['jersey'], p['name']), p['player_id'])
 			self.lineup_player_b6.addItem('#%d %s' % (p['jersey'], p['name']), p['player_id'])
 			self.lineup_player_b7.addItem('#%d %s' % (p['jersey'], p['name']), p['player_id'])
 			self.lineup_player_b8.addItem('#%d %s' % (p['jersey'], p['name']), p['player_id'])
 			self.lineup_player_b9.addItem('#%d %s' % (p['jersey'], p['name']), p['player_id'])
 			self.lineup_player_b10.addItem('#%d %s' % (p['jersey'], p['name']), p['player_id'])
 
+	def loadPlayerDataToVM(self, player_id):
+		url = 'http://www.choxue.com/zh-tw/players/%d/detailstats.json' % player_id
+		self.debug_console.setText(self.debug_console.toPlainText() + '\r\n' + url)
+		response = urllib.urlopen(url)
+		_pdata = json.loads(response.read())
+
+		player = self.player_by_ID(player_id)
+		player['detailstats'] = _pdata
+		#print json.dumps(_pdata, sort_keys=True, indent=4)
+		#print json.dumps(self.API_data, sort_keys=True, indent=4)
 
 	def indivstats2_handler(self, command):
-		_pixmap = QtGui.QPixmap(resource_path("_001 Commentators-CG_00061.png"))
-		self.label_8.setPixmap(_pixmap)
-
-		player = self.indivstats_player.itemData(self.indivstats_player.currentIndex())
+		_pid = self.indivstats_player.itemData(self.indivstats_player.currentIndex())
+		player = player_by_ID(_pid)
 
 		_dict = dict(
 		player_name = player['name'].encode('utf-8'),
@@ -264,16 +275,17 @@ class CasparCGController(QtGui.QMainWindow, design.Ui_MainWindow):
 		)
 
 		if(command == 'ADD'):
-			self.tcpWorker.send('CG 1-120 ADD 1 "_101 Scoreboard statistics" 1 ' + self.dict_to_templateData(_dict))
+			self.sendTCP('CG 1-120 ADD 1 "_101 Scoreboard statistics" 1 ' + self.dict_to_templateData(_dict))
 
 		if(command == 'STOP'):
-			self.tcpWorker.send('CG 1-120 STOP 1')
+			self.sendTCP('CG 1-120 STOP 1')
 
 		if(command == 'UPDATE'):
-			self.tcpWorker.send('CG 1-120 UPDATE 1 ' + self.dict_to_templateData(_dict))
+			self.sendTCP('CG 1-120 UPDATE 1 ' + self.dict_to_templateData(_dict))
 
 	def indivstats_handler(self, command):
-		player = self.indivstats_player.itemData(self.indivstats_player.currentIndex())
+		_pid = self.indivstats_player.itemData(self.indivstats_player.currentIndex())
+		player = self.player_by_ID(_pid)
 
 		_dict = dict(
 			player_name = player['name'].encode('utf-8'),
@@ -281,8 +293,8 @@ class CasparCGController(QtGui.QMainWindow, design.Ui_MainWindow):
 			info_2 = self.indivstats_info_2.text().encode('utf-8'),
 			info_3 = self.indivstats_info_3.text().encode('utf-8'),
 			info_4 = self.indivstats_info_4.text().encode('utf-8'),
-			headshot_src = 'players/' + str(player['jersey']).encode('utf-8') + '_' + player['name'].encode('utf-8') + '.png',
-			logo_src = 'teams/' + player['team'].encode('utf-8') + '.png',
+			headshot_src = player['headshot_src'],
+			logo_src = player['logo_src'],
 			ad_src = self.indivstats_ad.currentText().encode('utf-8')
 		)
 
@@ -300,25 +312,25 @@ class CasparCGController(QtGui.QMainWindow, design.Ui_MainWindow):
 		if(command == 'CLEAR STATISTICS'):
 			self.indivstats2_info.setText('')
 
-
 		if(command == 'LOAD STATISTICS'): # Load indiv statistics from chosen player based on player_id
-			url = 'http://www.choxue.com/zh-tw/players/' + str(player['player_id']) + '/detailstats.json'
-			self.debug_console.setText(self.debug_console.toPlainText() + '\r\n' + url)
-			_key_map = dict(year = 'Year', team = 'Team', gp = 'GP', minutes_avg = 'MIN', minutes_total = 'TOTAL MIN', two_avg = '2PT', two_total = '2PT TOT', trey_avg = '3PT', trey_total = '3PT TOT', ft_avg = 'FT', ft_total = 'TOT FT', reb_o_avg = 'REB-O', reb_o_total = 'TOT REB-O', reb_d_avg = 'REB-D', reb_d_total = 'TOT REB-D', ast_avg = 'AST', ast_total = 'TOT AST', stl_avg = 'STL', stl_total = 'TOT STL', blk_avg = 'BLK', blk_total = 'TOT BLK', turnover_avg = 'TO', turnover_total = 'TOT TO', pfoul_avg = 'FOULS', pfoul_total = 'TOT FOULS')
-			response = urllib.urlopen(url)
-			response = response.read()
-			for key, value in _key_map.iteritems():
-				response = response.replace(key, value)
-			_API_data = json.loads(response)
+			self.loadPlayerDataToVM(_pid)
+			#url = 'http://www.choxue.com/zh-tw/players/' + str(player['player_id']) + '/detailstats.json'
+			#self.debug_console.setText(self.debug_console.toPlainText() + '\r\n' + url)
+			#_key_map = dict(year = 'Year', team = 'Team', gp = 'GP', minutes_avg = 'MIN', minutes_total = 'TOTAL MIN', two_avg = '2PT', two_total = '2PT TOT', trey_avg = '3PT', trey_total = '3PT TOT', ft_avg = 'FT', ft_total = 'TOT FT', reb_o_avg = 'REB-O', reb_o_total = 'TOT REB-O', reb_d_avg = 'REB-D', reb_d_total = 'TOT REB-D', ast_avg = 'AST', ast_total = 'TOT AST', stl_avg = 'STL', stl_total = 'TOT STL', blk_avg = 'BLK', blk_total = 'TOT BLK', turnover_avg = 'TO', turnover_total = 'TOT TO', pfoul_avg = 'FOULS', pfoul_total = 'TOT FOULS')
+			#response = urllib.urlopen(url)
+			#response = response.read()
+			#for key, value in _key_map.iteritems():
+			#	response = response.replace(key, value)
+			_API_data = self.player_by_ID(_pid)['detailstats']
 
-			try: _API_data['seasons'][0]['3PT'] +=  ' (' + str((float(_API_data['seasons'][0]['3PT'].split(' - ')[0]) / float(_API_data['seasons'][0]['3PT'].split(' - ')[1]))*100).split('.')[0] + '%)'
-			except ZeroDivisionError: pass
-			try: _API_data['seasons'][0]['2PT'] +=  ' (' + str((float(_API_data['seasons'][0]['2PT'].split(' - ')[0]) / float(_API_data['seasons'][0]['2PT'].split(' - ')[1]))*100).split('.')[0] + '%)'
-			except ZeroDivisionError: pass
-			try: _API_data['seasons'][0]['3PT TOT'] +=  ' (' + str((float(_API_data['seasons'][0]['3PT TOT'].split(' - ')[0]) / float(_API_data['seasons'][0]['3PT TOT'].split(' - ')[1]))*100).split('.')[0] + '%)'
-			except ZeroDivisionError: pass
-			try: _API_data['seasons'][0]['2PT TOT'] +=  ' (' + str((float(_API_data['seasons'][0]['2PT TOT'].split(' - ')[0]) / float(_API_data['seasons'][0]['2PT TOT'].split(' - ')[1]))*100).split('.')[0] + '%)'
-			except ZeroDivisionError: pass
+			#try: _API_data['seasons'][0]['3PT'] +=  ' (' + str((float(_API_data['seasons'][0]['3PT'].split(' - ')[0]) / float(_API_data['seasons'][0]['3PT'].split(' - ')[1]))*100).split('.')[0] + '%)'
+			#except ZeroDivisionError: pass
+			#try: _API_data['seasons'][0]['2PT'] +=  ' (' + str((float(_API_data['seasons'][0]['2PT'].split(' - ')[0]) / float(_API_data['seasons'][0]['2PT'].split(' - ')[1]))*100).split('.')[0] + '%)'
+			#except ZeroDivisionError: pass
+			#try: _API_data['seasons'][0]['3PT TOT'] +=  ' (' + str((float(_API_data['seasons'][0]['3PT TOT'].split(' - ')[0]) / float(_API_data['seasons'][0]['3PT TOT'].split(' - ')[1]))*100).split('.')[0] + '%)'
+			#except ZeroDivisionError: pass
+			#try: _API_data['seasons'][0]['2PT TOT'] +=  ' (' + str((float(_API_data['seasons'][0]['2PT TOT'].split(' - ')[0]) / float(_API_data['seasons'][0]['2PT TOT'].split(' - ')[1]))*100).split('.')[0] + '%)'
+			#except ZeroDivisionError: pass
 
 
 			self.indivstats2_info.setText('')
@@ -330,9 +342,6 @@ class CasparCGController(QtGui.QMainWindow, design.Ui_MainWindow):
 				except UnicodeEncodeError:
 					self.indivstats_season_statistic.addItem(key + ':   ' + value, [key, value])
 			
-			self.load_API(False)
-			player = self.indivstats_player.itemData(self.indivstats_player.currentIndex())
-
 			for key, value in sorted(player.iteritems()):
 				try:
 					self.indivstats_game_statistic.addItem(key + ':   ' + str(value), [key, str(value)])
@@ -422,7 +431,6 @@ class CasparCGController(QtGui.QMainWindow, design.Ui_MainWindow):
 			quarter = 		self.SERIAL_data['quarter'].encode('utf-8')
 		)
 		self.sendTCP('CG 1-40 UPDATE 1 ' + self.dict_to_templateData(_dict))
-
 
 	def score3_handler(self, command):
 		_dict = dict(
