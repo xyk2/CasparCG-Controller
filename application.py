@@ -256,6 +256,21 @@ class CasparCGController(QtGui.QMainWindow, design.Ui_MainWindow):
 		response = urllib.urlopen(url)
 		_pdata = json.loads(response.read())
 
+		for game in _pdata['gamelogs']:
+			game['reb_tot'] 	= game['reb_o'] + game['reb_d'] # Add team of player into dataset
+			game['points_tot'] 	= (int(game['ft'].split(' - ')[0]) + (int(game['two'].split(' - ')[0]) * 2) + (int(game['trey'].split(' - ')[0]) * 3)) # Add team of player into dataset
+			game['two'] 		= '%s (%s)' %(game['two'].replace(' - ', '/'), self.stat_percentage(game['two']))
+			game['trey'] 		= '%s (%s)' %(game['trey'].replace(' - ', '/'), self.stat_percentage(game['trey']))
+			game['ft'] 			= '%s (%s)' %(game['ft'].replace(' - ', '/'), self.stat_percentage(game['ft']))
+
+		for season in _pdata['seasons']:
+			season['trey_avg'] 		= '%s (%s)' %(season['trey_avg'].replace(' - ', '/'), self.stat_percentage(season['trey_avg']))
+			season['two_avg'] 		= '%s (%s)' %(season['two_avg'].replace(' - ', '/'), self.stat_percentage(season['two_avg']))
+			season['ft_avg'] 		= '%s (%s)' %(season['ft_avg'].replace(' - ', '/'), self.stat_percentage(season['ft_avg']))
+			season['trey_total'] 	= '%s (%s)' %(season['trey_total'].replace(' - ', '/'), self.stat_percentage(season['trey_total']))
+			season['two_total'] 	= '%s (%s)' %(season['two_total'].replace(' - ', '/'), self.stat_percentage(season['two_total']))
+			season['ft_total'] 		= '%s (%s)' %(season['ft_total'].replace(' - ', '/'), self.stat_percentage(season['ft_total']))
+
 		player = self.player_by_ID(player_id)
 		player['detailstats'] = _pdata
 		#print json.dumps(_pdata, sort_keys=True, indent=4)
@@ -314,13 +329,6 @@ class CasparCGController(QtGui.QMainWindow, design.Ui_MainWindow):
 
 		if(command == 'LOAD STATISTICS'): # Load indiv statistics from chosen player based on player_id
 			self.loadPlayerDataToVM(_pid)
-			#url = 'http://www.choxue.com/zh-tw/players/' + str(player['player_id']) + '/detailstats.json'
-			#self.debug_console.setText(self.debug_console.toPlainText() + '\r\n' + url)
-			#_key_map = dict(year = 'Year', team = 'Team', gp = 'GP', minutes_avg = 'MIN', minutes_total = 'TOTAL MIN', two_avg = '2PT', two_total = '2PT TOT', trey_avg = '3PT', trey_total = '3PT TOT', ft_avg = 'FT', ft_total = 'TOT FT', reb_o_avg = 'REB-O', reb_o_total = 'TOT REB-O', reb_d_avg = 'REB-D', reb_d_total = 'TOT REB-D', ast_avg = 'AST', ast_total = 'TOT AST', stl_avg = 'STL', stl_total = 'TOT STL', blk_avg = 'BLK', blk_total = 'TOT BLK', turnover_avg = 'TO', turnover_total = 'TOT TO', pfoul_avg = 'FOULS', pfoul_total = 'TOT FOULS')
-			#response = urllib.urlopen(url)
-			#response = response.read()
-			#for key, value in _key_map.iteritems():
-			#	response = response.replace(key, value)
 			_API_data = self.player_by_ID(_pid)['detailstats']
 
 			#try: _API_data['seasons'][0]['3PT'] +=  ' (' + str((float(_API_data['seasons'][0]['3PT'].split(' - ')[0]) / float(_API_data['seasons'][0]['3PT'].split(' - ')[1]))*100).split('.')[0] + '%)'
