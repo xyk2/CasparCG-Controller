@@ -79,7 +79,7 @@ class CasparCGController(QtGui.QMainWindow, design.Ui_MainWindow):
 		self.standings_play.clicked.connect(lambda: self.standings_handler('ADD'))
 		self.standings_stop.clicked.connect(lambda: self.standings_handler('STOP'))
 		self.standings_update.clicked.connect(lambda: self.standings_handler('UPDATE'))
-		self.standings_ad_on.clicked.connect(lambda: self.standings_handler('AD ON'))
+		self.standings_ad_in.clicked.connect(lambda: self.standings_handler('AD ON'))
 		self.standings_ad_out.clicked.connect(lambda: self.standings_handler('AD OFF'))
 		self.standingsTable.currentCellChanged.connect(lambda: self.standings_handler('SAVE QSETTINGS'))
 		self.standings_handler('INITIALIZE')
@@ -102,6 +102,11 @@ class CasparCGController(QtGui.QMainWindow, design.Ui_MainWindow):
 		self.lineup_ad_in_2.clicked.connect(lambda: self.lineup_2_handler('AD ON'))
 		self.lineup_ad_out_2.clicked.connect(lambda: self.lineup_2_handler('AD OFF'))
 
+		self.team_stats_play_2.clicked.connect(lambda: self.team_stats_2_handler('ADD'))
+		self.team_stats_stop_2.clicked.connect(lambda: self.team_stats_2_handler('STOP'))
+		self.team_stats_update_2.clicked.connect(lambda: self.team_stats_2_handler('UPDATE'))
+		self.team_stats_auto_2.clicked.connect(lambda: self.team_stats_2_handler('ADD AUTO'))
+
 		self.team_stats_play.clicked.connect(lambda: self.team_stats_handler('ADD'))
 		self.team_stats_stop.clicked.connect(lambda: self.team_stats_handler('STOP'))
 		self.team_stats_update.clicked.connect(lambda: self.team_stats_handler('UPDATE'))
@@ -123,6 +128,7 @@ class CasparCGController(QtGui.QMainWindow, design.Ui_MainWindow):
 		self.indivstats_player.currentIndexChanged.connect(lambda: self.indivstats_handler('LOAD STATISTICS TO VM THEN POPULATE'))
 		self.indivstats_season.currentIndexChanged.connect(lambda: self.indivstats_handler('POPULATE SEASON STATISTICS'))
 		self.indivstats_gamelogs.currentIndexChanged.connect(lambda: self.indivstats_handler('POPULATE GAMELOG STATISTICS'))
+		self.indivstats2_auto.clicked.connect(lambda: self.indivstats2_handler('ADD AUTO'))
 		self.indivstats2_play.clicked.connect(lambda: self.indivstats2_handler('ADD'))
 		self.indivstats2_stop.clicked.connect(lambda: self.indivstats2_handler('STOP'))
 		self.indivstats2_update.clicked.connect(lambda: self.indivstats2_handler('UPDATE'))
@@ -177,6 +183,8 @@ class CasparCGController(QtGui.QMainWindow, design.Ui_MainWindow):
 			self.tcpWorker.send(packet)
 		except AttributeError:
 			QtGui.QMessageBox.critical(self, "TCP Error", str("CasparCG connection error."), QtGui.QMessageBox.Abort)
+		except socket.timeout:
+			QtGui.QMessageBox.critical(self, "TCP Error", str("CasparCG connection timeout."), QtGui.QMessageBox.Abort)
 
 	def tabWidgetChanged(self, index): # Called when window of tab widget changes
 		if(index == 5 or index == 4):
@@ -215,13 +223,35 @@ class CasparCGController(QtGui.QMainWindow, design.Ui_MainWindow):
 			p['logo_src'] 		= 'teams/%s.png' % p['team'].encode('utf-8')
 
 
+		self.team_stats_table.setItem(0, 0, QTableWidgetItem(str(self.API_data['home']['fouls'])))
+		self.team_stats_table.setItem(1, 0, QTableWidgetItem(str(self.API_data['home']['two'])))
+		self.team_stats_table.setItem(2, 0, QTableWidgetItem(str(self.API_data['home']['trey'])))
+		self.team_stats_table.setItem(3, 0, QTableWidgetItem(str(self.API_data['home']['ft'])))
+		self.team_stats_table.setItem(4, 0, QTableWidgetItem(str(self.API_data['home']['reb_d'])))
+		self.team_stats_table.setItem(5, 0, QTableWidgetItem(str(self.API_data['home']['reb_o'])))
+		self.team_stats_table.setItem(6, 0, QTableWidgetItem(str(self.API_data['home']['reb_tot'])))
+		self.team_stats_table.setItem(7, 0, QTableWidgetItem(str(self.API_data['home']['ast'])))
+		self.team_stats_table.setItem(8, 0, QTableWidgetItem(str(self.API_data['home']['stl'])))
+		self.team_stats_table.setItem(9, 0, QTableWidgetItem(str(self.API_data['home']['blk'])))
+		self.team_stats_table.setItem(0, 1, QTableWidgetItem(str(self.API_data['guest']['fouls'])))
+		self.team_stats_table.setItem(1, 1, QTableWidgetItem(str(self.API_data['guest']['two'])))
+		self.team_stats_table.setItem(2, 1, QTableWidgetItem(str(self.API_data['guest']['trey'])))
+		self.team_stats_table.setItem(3, 1, QTableWidgetItem(str(self.API_data['guest']['ft'])))
+		self.team_stats_table.setItem(4, 1, QTableWidgetItem(str(self.API_data['guest']['reb_d'])))
+		self.team_stats_table.setItem(5, 1, QTableWidgetItem(str(self.API_data['guest']['reb_o'])))
+		self.team_stats_table.setItem(6, 1, QTableWidgetItem(str(self.API_data['guest']['reb_tot'])))
+		self.team_stats_table.setItem(7, 1, QTableWidgetItem(str(self.API_data['guest']['ast'])))
+		self.team_stats_table.setItem(8, 1, QTableWidgetItem(str(self.API_data['guest']['stl'])))
+		self.team_stats_table.setItem(9, 1, QTableWidgetItem(str(self.API_data['guest']['blk'])))
+
+
 		if(not refreshQObjects): # Load data to API_data only, QObject updates must come from BUTTON
 			return
 
 		#print json.dumps(self.player_by_ID(1387), sort_keys=True, indent=4)
 
 		_lineup_comboBoxes_home = [self.lineup_player_1, self.lineup_player_2, self.lineup_player_3, self.lineup_player_4, self.lineup_player_5]
-		_lineup_comboBoxes_away = [self.lineup_player_b6, self.lineup_player_b7, self.lineup_player_b8, self.lineup_player_b9, self.lineup_player_b10]
+		_lineup_comboBoxes_away = [self.lineup_player_6, self.lineup_player_7, self.lineup_player_8, self.lineup_player_9, self.lineup_player_10]
 
 		self.indivstats_player.clear()
 		self.lineup_player_1.clear()
@@ -229,11 +259,11 @@ class CasparCGController(QtGui.QMainWindow, design.Ui_MainWindow):
 		self.lineup_player_3.clear()
 		self.lineup_player_4.clear()
 		self.lineup_player_5.clear()
-		self.lineup_player_b6.clear()
-		self.lineup_player_b7.clear()
-		self.lineup_player_b8.clear()
-		self.lineup_player_b9.clear()
-		self.lineup_player_b10.clear()
+		self.lineup_player_6.clear()
+		self.lineup_player_7.clear()
+		self.lineup_player_8.clear()
+		self.lineup_player_9.clear()
+		self.lineup_player_10.clear()
 
 		self.home_team.setText(self.API_data['home']['name'])
 		self.away_team.setText(self.API_data['guest']['name'])
@@ -255,11 +285,11 @@ class CasparCGController(QtGui.QMainWindow, design.Ui_MainWindow):
 
 		for p in self.API_data['awaystats']: # Add to QComboBox
 			self.indivstats_player.addItem('%s - #%d %s' % (p['team'], p['jersey'], p['name']), p['player_id'])
-			self.lineup_player_b6.addItem('#%d %s' % (p['jersey'], p['name']), p['player_id'])
-			self.lineup_player_b7.addItem('#%d %s' % (p['jersey'], p['name']), p['player_id'])
-			self.lineup_player_b8.addItem('#%d %s' % (p['jersey'], p['name']), p['player_id'])
-			self.lineup_player_b9.addItem('#%d %s' % (p['jersey'], p['name']), p['player_id'])
-			self.lineup_player_b10.addItem('#%d %s' % (p['jersey'], p['name']), p['player_id'])
+			self.lineup_player_6.addItem('#%d %s' % (p['jersey'], p['name']), p['player_id'])
+			self.lineup_player_7.addItem('#%d %s' % (p['jersey'], p['name']), p['player_id'])
+			self.lineup_player_8.addItem('#%d %s' % (p['jersey'], p['name']), p['player_id'])
+			self.lineup_player_9.addItem('#%d %s' % (p['jersey'], p['name']), p['player_id'])
+			self.lineup_player_10.addItem('#%d %s' % (p['jersey'], p['name']), p['player_id'])
 
 	def loadPlayerDataToVM(self, player_id):
 		url = 'http://www.choxue.com/zh-tw/players/%d/detailstats.json' % player_id
@@ -307,8 +337,12 @@ class CasparCGController(QtGui.QMainWindow, design.Ui_MainWindow):
 			logo_src = player['logo_src']
 		)
 
-		if(command == 'ADD'):
+		if(command == 'ADD' or command == 'ADD AUTO'):
+			self.sendTCP('MIXER 1-120 FILL 0.084375 0.166667 0.85 0.85 0 Linear')
 			self.sendTCP('CG 1-120 ADD 1 "_101 Scoreboard statistics" 1 ' + self.dict_to_templateData(_dict))
+
+		if(command == 'ADD AUTO'):
+			QTimer.singleShot(10000, lambda: self.indivstats2_handler('STOP'))
 
 		if(command == 'STOP'):
 			self.sendTCP('CG 1-120 STOP 1')
@@ -425,6 +459,7 @@ class CasparCGController(QtGui.QMainWindow, design.Ui_MainWindow):
 			self.indivstats_handler('AUTOFILL')
 
 		if(command == 'ADD'):
+			self.sendTCP('MIXER 1-70 FILL -0.015625 0.236111 0.85 0.85 0 Linear')
 			self.sendTCP('CG 1-70 ADD 1 "_011 Player stats box-CG" 1 ' + self.dict_to_templateData(_dict))
 
 		if(command == 'STOP'):
@@ -447,6 +482,7 @@ class CasparCGController(QtGui.QMainWindow, design.Ui_MainWindow):
 		self.tcpWorker.start()
 		self.sendTCP('MIXER 1-40 FILL 0.084375 0.166667 0.85 0.85 0 Linear')
 		self.sendTCP('MIXER 1-120 FILL 0.084375 0.166667 0.85 0.85 0 Linear')
+		self.sendTCP('MIXER 1-130 FILL 0.084375 0.166667 0.85 0.85 0 Linear')
 		self.sendTCP('MIXER 1-70 FILL -0.015625 0.236111 0.85 0.85 0 Linear')
 		self.sendTCP('MIXER 1-100 FILL 0.075 0.138889 0.85 0.85 0 Linear')
 		self.sendTCP('MIXER 1-10 FILL 0.05 0.0972222 0.9 0.9 0 Linear')
@@ -524,13 +560,13 @@ class CasparCGController(QtGui.QMainWindow, design.Ui_MainWindow):
 
 		if(command == 'ADD'):
 			self.sendTCP('MIXER 1-110 FILL 0.05 0.0972222 0.9 0.9 0 Linear')
-			self.tcpWorker.send('CG 1-110 ADD 1 "_017 Score 3-CG" 1 ' + self.dict_to_templateData(_dict))
+			self.sendTCP('CG 1-110 ADD 1 "_017 Score 3-CG" 1 ' + self.dict_to_templateData(_dict))
 
 		if(command == 'STOP'):
-			self.tcpWorker.send('CG 1-110 STOP 1')
+			self.sendTCP('CG 1-110 STOP 1')
 
 		if(command == 'UPDATE'):
-			self.tcpWorker.send('CG 1-110 UPDATE 1 ' + self.dict_to_templateData(_dict))
+			self.sendTCP('CG 1-110 UPDATE 1 ' + self.dict_to_templateData(_dict))
 	
 	def score2_handler(self, command):
 		_dict = dict(
@@ -544,13 +580,13 @@ class CasparCGController(QtGui.QMainWindow, design.Ui_MainWindow):
 
 		if(command == 'ADD'):
 			self.sendTCP('MIXER 1-110 FILL 0.05 0.0972222 0.9 0.9 0 Linear')
-			self.tcpWorker.send('CG 1-110 ADD 1 "_004 Score 2-CG" 1 ' + self.dict_to_templateData(_dict))
+			self.sendTCP('CG 1-110 ADD 1 "_004 Score 2-CG" 1 ' + self.dict_to_templateData(_dict))
 
 		if(command == 'STOP'):
-			self.tcpWorker.send('CG 1-110 STOP 1')
+			self.sendTCP('CG 1-110 STOP 1')
 
 		if(command == 'UPDATE'):
-			self.tcpWorker.send('CG 1-110 UPDATE 1 ' + self.dict_to_templateData(_dict))
+			self.sendTCP('CG 1-110 UPDATE 1 ' + self.dict_to_templateData(_dict))
 
 	def qbyq_handler(self, command):
 		_dict = dict(
@@ -579,13 +615,13 @@ class CasparCGController(QtGui.QMainWindow, design.Ui_MainWindow):
 
 		if(command == 'ADD'):
 			self.sendTCP('MIXER 1-100 FILL 0.075 0.138889 0.85 0.85 0 Linear')
-			self.tcpWorker.send('CG 1-100 ADD 1 "_010 Score by quarter-CG" 1 ' + self.dict_to_templateData(_dict))
+			self.sendTCP('CG 1-100 ADD 1 "_010 Score by quarter-CG" 1 ' + self.dict_to_templateData(_dict))
 
 		if(command == 'STOP'):
-			self.tcpWorker.send('CG 1-100 STOP 1')
+			self.sendTCP('CG 1-100 STOP 1')
 
 		if(command == 'UPDATE'):
-			self.tcpWorker.send('CG 1-100 UPDATE 1 ' + self.dict_to_templateData(_dict))
+			self.sendTCP('CG 1-100 UPDATE 1 ' + self.dict_to_templateData(_dict))
 
 	def commentator_handler(self, command):
 		_dict = dict(
@@ -596,13 +632,13 @@ class CasparCGController(QtGui.QMainWindow, design.Ui_MainWindow):
 
 		if(command == 'ADD'):
 			self.sendTCP('MIXER 1-10 FILL 0.05 0.0972222 0.9 0.9 0 Linear')
-			self.tcpWorker.send('CG 1-10 ADD 1 "_001 COMMENTATORS-CG" 1 ' + self.dict_to_templateData(_dict))
+			self.sendTCP('CG 1-10 ADD 1 "_001 COMMENTATORS-CG" 1 ' + self.dict_to_templateData(_dict))
 
 		if(command == 'STOP'):
-			self.tcpWorker.send('CG 1-10 STOP 1')
+			self.sendTCP('CG 1-10 STOP 1')
 
 		if(command == 'UPDATE'):
-			self.tcpWorker.send('CG 1-10 UPDATE 1 ' + self.dict_to_templateData(_dict))
+			self.sendTCP('CG 1-10 UPDATE 1 ' + self.dict_to_templateData(_dict))
 
 	def official_handler(self, command):
 		_dict = dict(
@@ -613,13 +649,13 @@ class CasparCGController(QtGui.QMainWindow, design.Ui_MainWindow):
 
 		if(command == 'ADD'):
 			self.sendTCP('MIXER 1-20 FILL 0.05 0.0972222 0.9 0.9 0 Linear')
-			self.tcpWorker.send('CG 1-20 ADD 1 "_002 Officials-CG" 1 ' + self.dict_to_templateData(_dict))
+			self.sendTCP('CG 1-20 ADD 1 "_002 Officials-CG" 1 ' + self.dict_to_templateData(_dict))
 
 		if(command == 'STOP'):
-			self.tcpWorker.send('CG 1-20 STOP 1')
+			self.sendTCP('CG 1-20 STOP 1')
 
 		if(command == 'UPDATE'):
-			self.tcpWorker.send('CG 1-20 UPDATE 1 ' + self.dict_to_templateData(_dict))
+			self.sendTCP('CG 1-20 UPDATE 1 ' + self.dict_to_templateData(_dict))
 
 	def standings_handler(self, command):
 		_dict = dict(
@@ -675,21 +711,21 @@ class CasparCGController(QtGui.QMainWindow, design.Ui_MainWindow):
 			self.qsettings.setValue('STANDINGS', _dict)
 
 		if(command == 'ADD'):
-			self.tcpWorker.send('MIXER 1-30 FILL 0 0.2 1 1 1 Linear')
-			self.tcpWorker.send('CG 1-30 ADD 1 "_009 Standings-CG" 1 ' + self.dict_to_templateData(_dict))
+			self.sendTCP('MIXER 1-30 FILL 0.05 0.305556 0.9 0.9 0 Linear')
+			self.sendTCP('CG 1-30 ADD 1 "_009 Standings-CG" 1 ' + self.dict_to_templateData(_dict))
 
 		if(command == 'STOP'):
-			self.tcpWorker.send('CG 1-30 STOP 1')
+			self.sendTCP('CG 1-30 STOP 1')
 
 		if(command == 'UPDATE'):
-			self.tcpWorker.send('CG 1-30 UPDATE 1 ' + self.dict_to_templateData(_dict))
+			self.sendTCP('CG 1-30 UPDATE 1 ' + self.dict_to_templateData(_dict))
 
 		if(command == 'AD ON'):
-			self.tcpWorker.send('CG 1-30 UPDATE 1 ' + self.dict_to_templateData(dict(ad_src = _dict['ad_src'])))
-			self.tcpWorker.send('CG 1-30 INVOKE 1 "ad_in"')
+			self.sendTCP('CG 1-30 UPDATE 1 ' + self.dict_to_templateData(dict(ad_src = _dict['ad_src'])))
+			self.sendTCP('CG 1-30 INVOKE 1 "ad_in"')
 
 		if(command == 'AD OFF'):
-			self.tcpWorker.send('CG 1-30 INVOKE 1 "ad_out"')
+			self.sendTCP('CG 1-30 INVOKE 1 "ad_out"')
 
 	def scoreboard_handler(self, command):
 		_dict = dict(
@@ -766,7 +802,7 @@ class CasparCGController(QtGui.QMainWindow, design.Ui_MainWindow):
 			self.sendTCP('CG 1-50 INVOKE 1 "ad_out"')
 
 	def lineup_2_handler(self, command):
-		_pid = [self.lineup_player_b6.itemData(self.lineup_player_b6.currentIndex()), self.lineup_player_b7.itemData(self.lineup_player_b7.currentIndex()), self.lineup_player_b8.itemData(self.lineup_player_b8.currentIndex()), self.lineup_player_b9.itemData(self.lineup_player_b9.currentIndex()), self.lineup_player_b10.itemData(self.lineup_player_b10.currentIndex())]
+		_pid = [self.lineup_player_6.itemData(self.lineup_player_6.currentIndex()), self.lineup_player_7.itemData(self.lineup_player_7.currentIndex()), self.lineup_player_8.itemData(self.lineup_player_8.currentIndex()), self.lineup_player_9.itemData(self.lineup_player_9.currentIndex()), self.lineup_player_10.itemData(self.lineup_player_10.currentIndex())]
 		_players = [self.player_by_ID(_pid[0]), self.player_by_ID(_pid[1]), self.player_by_ID(_pid[2]), self.player_by_ID(_pid[3]), self.player_by_ID(_pid[4])]
 
 		_dict = dict(
@@ -789,7 +825,7 @@ class CasparCGController(QtGui.QMainWindow, design.Ui_MainWindow):
 		ad_src = self.lineup_ad.currentText().encode('utf-8')
 		)
 
-		if(command == 'ADD'):
+		if(command == 'ADD')
 			self.sendTCP('MIXER 1-51 FILL 0.05 0.0972222 0.9 0.9 0 Linear')
 			self.sendTCP('CG 1-51 ADD 1 "_015 Starting lineup faces-CG" 1 ' + self.dict_to_templateData(_dict))
 
@@ -805,6 +841,36 @@ class CasparCGController(QtGui.QMainWindow, design.Ui_MainWindow):
 
 		if(command == 'AD OFF'):
 			self.sendTCP('CG 1-51 INVOKE 1 "ad_out"')
+
+	def team_stats_2_handler(self, command):
+		try: 
+			row = self.team_stats_table.selectionModel().selectedRows()[0].row()
+		except: 
+			QtGui.QMessageBox.critical(self, "Data error", str("Select a statistic."), QtGui.QMessageBox.Abort)
+			return
+
+
+		_statistic = ['FOULS', '2 POINT', '3 POINT', 'FREE THROWS', 'OFFENSIVE REBOUNDS', 'DEFENSIVE REBOUNDS', 'REBOUNDS', 'ASSISTS', 'STEALS', 'BLOCKS']
+
+		_dict = dict(
+			home = self.team_stats_table.item(row, 0).text().encode('utf-8'),
+			away = self.team_stats_table.item(row, 1).text().encode('utf-8'),
+			statistic = _statistic[row].encode('utf-8')
+		)
+		
+		if(command == 'ADD' or command == 'ADD AUTO'):
+			self.sendTCP('MIXER 1-130 FILL 0.084375 0.166667 0.85 0.85 0 Linear')
+			self.sendTCP('CG 1-130 ADD 1 "_102 Scoreboard team statistics" 1 ' + self.dict_to_templateData(_dict))
+
+		if(command == 'ADD AUTO'):
+			QTimer.singleShot(5000, lambda: self.team_stats_2_handler('STOP'))
+
+		if(command == 'STOP'):
+			self.sendTCP('CG 1-130 STOP 1')
+
+		if(command == 'UPDATE'):
+			self.sendTCP('CG 1-130 UPDATE 1 ' + self.dict_to_templateData(_dict))
+
 
 	def team_stats_handler(self, command):
 		_dict = dict(
