@@ -58,13 +58,13 @@ class CasparCGController(QtGui.QMainWindow, design.Ui_MainWindow):
 		self.connectCaspar.clicked.connect(self.init_tcpWorker)
 		self.TLS.clicked.connect(lambda: self.tcpWorker.TLS())
 		self.com_connect.clicked.connect(self.init_SerialWorker)
-		self.com_rescan.clicked.connect(self.scan)
+		self.com_rescan.clicked.connect(self.serial_scan)
 		self.load_gamekey.clicked.connect(lambda: self.load_API(True))
 		self.ipaddress.textEdited.connect(lambda: self.qsettings.setValue('TCP_IP', self.ipaddress.text()))
 		self.port.textEdited.connect(lambda: self.qsettings.setValue('TCP_PORT', self.port.text()))
 		self.game_key.textEdited.connect(lambda: self.qsettings.setValue('GAME_KEY', self.game_key.text()))
 
-		self.scan()
+		self.serial_scan()
 		self.load_API(True)
 		self.indivstats_handler('LOAD STATISTICS')
 
@@ -79,8 +79,8 @@ class CasparCGController(QtGui.QMainWindow, design.Ui_MainWindow):
 		self.standings_play.clicked.connect(lambda: self.standings_handler('ADD'))
 		self.standings_stop.clicked.connect(lambda: self.standings_handler('STOP'))
 		self.standings_update.clicked.connect(lambda: self.standings_handler('UPDATE'))
-		self.ad_on.clicked.connect(lambda: self.standings_handler('AD ON'))
-		self.ad_off.clicked.connect(lambda: self.standings_handler('AD OFF'))
+		self.standings_ad_on.clicked.connect(lambda: self.standings_handler('AD ON'))
+		self.standings_ad_out.clicked.connect(lambda: self.standings_handler('AD OFF'))
 		self.standingsTable.currentCellChanged.connect(lambda: self.standings_handler('SAVE QSETTINGS'))
 		self.standings_handler('INITIALIZE')
 
@@ -109,18 +109,29 @@ class CasparCGController(QtGui.QMainWindow, design.Ui_MainWindow):
 		self.team_stats_ad_out.clicked.connect(lambda: self.team_stats_handler('AD OFF'))
 		self.tabWidget.currentChanged.connect(self.tabWidgetChanged)
 
+		self._pcheckboxes = [self.game_2pt, self.game_3pt, self.game_ft, self.game_pts, self.game_reb, self.game_ast, self.game_stl, self.game_blk, self.game_fouls]
+		self._scheckboxes = [self.season_2pt, self.season_3pt, self.season_ft, self.season_reb, self.season_ast, self.season_stl, self.season_blk, self.season_fouls, self.season_gp, self.season_to, self.season_minutes]
+		self._gcheckboxes = [self.gamelog_2pt, self.gamelog_3pt, self.gamelog_ft, self.gamelog_pts, self.gamelog_reb, self.gamelog_ast, self.gamelog_stl, self.gamelog_blk, self.gamelog_fouls, self.gamelog_minutes]
+		for checkbox in (self._pcheckboxes + self._scheckboxes + self._gcheckboxes): # When checkboxes are toggled, update data 
+			checkbox.toggled.connect(lambda: self.indivstats_handler('AUTOFILL'))
+
 		self.indivstats_play.clicked.connect(lambda: self.indivstats_handler('ADD'))
 		self.indivstats_stop.clicked.connect(lambda: self.indivstats_handler('STOP'))
 		self.indivstats_update.clicked.connect(lambda: self.indivstats_handler('UPDATE'))
 		self.indivstats_ad_in.clicked.connect(lambda: self.indivstats_handler('AD ON'))
 		self.indivstats_ad_out.clicked.connect(lambda: self.indivstats_handler('AD OFF'))
-		self.indivstats_player.currentIndexChanged.connect(lambda: self.indivstats_handler('LOAD STATISTICS'))
+		self.indivstats_player.currentIndexChanged.connect(lambda: self.indivstats_handler('LOAD STATISTICS TO VM THEN POPULATE'))
+		self.indivstats_season.currentIndexChanged.connect(lambda: self.indivstats_handler('POPULATE SEASON STATISTICS'))
+		self.indivstats_gamelogs.currentIndexChanged.connect(lambda: self.indivstats_handler('POPULATE GAMELOG STATISTICS'))
 		self.indivstats2_play.clicked.connect(lambda: self.indivstats2_handler('ADD'))
 		self.indivstats2_stop.clicked.connect(lambda: self.indivstats2_handler('STOP'))
 		self.indivstats2_update.clicked.connect(lambda: self.indivstats2_handler('UPDATE'))
-		self.indivstats_insert.clicked.connect(lambda: self.indivstats_handler('INSERT SEASON STATISTIC'))
-		self.indivstats_insert_game.clicked.connect(lambda: self.indivstats_handler('INSERT GAME STATISTIC'))
 		self.indivstats_clear.clicked.connect(lambda: self.indivstats_handler('CLEAR STATISTICS'))
+		self.auto_gamelog.toggled.connect(lambda: self.indivstats_handler('AUTOFILL'))
+		self.auto_season.toggled.connect(lambda: self.indivstats_handler('AUTOFILL'))
+		self.auto_game.toggled.connect(lambda: self.indivstats_handler('AUTOFILL'))
+		self.auto_manual.toggled.connect(lambda: self.indivstats_handler('AUTOFILL'))
+
 
 		self.gp_play.clicked.connect(lambda: self.gp_handler('ADD'))
 		self.gp_stop.clicked.connect(lambda: self.gp_handler('STOP'))
@@ -201,7 +212,7 @@ class CasparCGController(QtGui.QMainWindow, design.Ui_MainWindow):
 			p['two'] 			= '%s (%s)' %(p['two'].replace(' - ', '/') ,self.stat_percentage(p['two']))
 			p['trey'] 			= '%s (%s)' %(p['trey'].replace(' - ', '/') ,self.stat_percentage(p['trey']))
 			p['ft'] 			= '%s (%s)' %(p['ft'].replace(' - ', '/') ,self.stat_percentage(p['ft']))
-			p['logo_src'] 		= 'teams/%s.png' % p['team']
+			p['logo_src'] 		= 'teams/%s.png' % p['team'].encode('utf-8')
 
 
 		if(not refreshQObjects): # Load data to API_data only, QObject updates must come from BUTTON
@@ -256,20 +267,27 @@ class CasparCGController(QtGui.QMainWindow, design.Ui_MainWindow):
 		response = urllib.urlopen(url)
 		_pdata = json.loads(response.read())
 
+		self.indivstats_gamelogs.clear()
+		self.indivstats_season.clear()
+
 		for game in _pdata['gamelogs']:
-			game['reb_tot'] 	= game['reb_o'] + game['reb_d'] # Add team of player into dataset
-			game['points_tot'] 	= (int(game['ft'].split(' - ')[0]) + (int(game['two'].split(' - ')[0]) * 2) + (int(game['trey'].split(' - ')[0]) * 3)) # Add team of player into dataset
+			game['reb_tot'] 	= game['reb_o'] + game['reb_d']
+			game['points_tot'] 	= (int(game['ft'].split(' - ')[0]) + (int(game['two'].split(' - ')[0]) * 2) + (int(game['trey'].split(' - ')[0]) * 3)) 
 			game['two'] 		= '%s (%s)' %(game['two'].replace(' - ', '/'), self.stat_percentage(game['two']))
 			game['trey'] 		= '%s (%s)' %(game['trey'].replace(' - ', '/'), self.stat_percentage(game['trey']))
 			game['ft'] 			= '%s (%s)' %(game['ft'].replace(' - ', '/'), self.stat_percentage(game['ft']))
+			self.indivstats_gamelogs.addItem('%s %s' % (game['date'], game['game']), game)
 
 		for season in _pdata['seasons']:
+			season['reb_total'] 	= season['reb_d_total'] + season['reb_o_total']
+			season['reb_avg'] 		= season['reb_d_avg'] + season['reb_o_avg']
 			season['trey_avg'] 		= '%s (%s)' %(season['trey_avg'].replace(' - ', '/'), self.stat_percentage(season['trey_avg']))
 			season['two_avg'] 		= '%s (%s)' %(season['two_avg'].replace(' - ', '/'), self.stat_percentage(season['two_avg']))
 			season['ft_avg'] 		= '%s (%s)' %(season['ft_avg'].replace(' - ', '/'), self.stat_percentage(season['ft_avg']))
 			season['trey_total'] 	= '%s (%s)' %(season['trey_total'].replace(' - ', '/'), self.stat_percentage(season['trey_total']))
 			season['two_total'] 	= '%s (%s)' %(season['two_total'].replace(' - ', '/'), self.stat_percentage(season['two_total']))
 			season['ft_total'] 		= '%s (%s)' %(season['ft_total'].replace(' - ', '/'), self.stat_percentage(season['ft_total']))
+			self.indivstats_season.addItem('%s - %s' % (season['year'], season['team']), season)
 
 		player = self.player_by_ID(player_id)
 		player['detailstats'] = _pdata
@@ -278,15 +296,15 @@ class CasparCGController(QtGui.QMainWindow, design.Ui_MainWindow):
 
 	def indivstats2_handler(self, command):
 		_pid = self.indivstats_player.itemData(self.indivstats_player.currentIndex())
-		player = player_by_ID(_pid)
+		player = self.player_by_ID(_pid)
 
 		_dict = dict(
-		player_name = player['name'].encode('utf-8'),
-		player_info = (str(player['jersey']) + ' | ' + str(player['position'])).encode('utf-8'),
-		statistics = self.indivstats2_info.text().encode('utf-8'),
-		period = self.indivstats2_period.text().encode('utf-8'),
-		headshot_src = 'players/' + str(player['jersey']).encode('utf-8') + '_' + player['name'].encode('utf-8') + '.png',
-		logo_src = 'teams/' + player['team'].encode('utf-8') + '.png'
+			player_name = player['name'].encode('utf-8'),
+			player_info = (str(player['jersey']) + ' | ' + str(player['position'])).encode('utf-8'),
+			statistics = self.indivstats2_info.text().encode('utf-8'),
+			period = self.indivstats2_period.text().encode('utf-8'),
+			headshot_src = player['headshot_src'],
+			logo_src = player['logo_src']
 		)
 
 		if(command == 'ADD'):
@@ -313,58 +331,98 @@ class CasparCGController(QtGui.QMainWindow, design.Ui_MainWindow):
 			ad_src = self.indivstats_ad.currentText().encode('utf-8')
 		)
 
-		if(command == 'INSERT GAME STATISTIC'):
-			_key_map = dict(reb_tot = 'REB', blk = 'BLK', ft = 'FT', stl = 'STL', assists = 'AST', trey = '3PT', two = '2PT', points_tot = 'PTS')
-			_statistic = self.indivstats_game_statistic.itemData(self.indivstats_game_statistic.currentIndex())
-			for key, value in _key_map.iteritems():
-				_statistic[0] = _statistic[0].replace(key, value)
-			self.indivstats2_info.setText(self.indivstats2_info.text() + '    ' + _statistic[0] + ': ' + _statistic[1])
-
-		if(command == 'INSERT SEASON STATISTIC'):
-			_statistic = self.indivstats_season_statistic.itemData(self.indivstats_season_statistic.currentIndex())
-			self.indivstats2_info.setText(self.indivstats2_info.text() + '    ' + _statistic[0] + ': ' + _statistic[1])
-
 		if(command == 'CLEAR STATISTICS'):
 			self.indivstats2_info.setText('')
 
-		if(command == 'LOAD STATISTICS'): # Load indiv statistics from chosen player based on player_id
-			self.loadPlayerDataToVM(_pid)
-			_API_data = self.player_by_ID(_pid)['detailstats']
+		if(command == 'AUTOFILL'):
+			_info = ''
+			_period = ''
 
-			#try: _API_data['seasons'][0]['3PT'] +=  ' (' + str((float(_API_data['seasons'][0]['3PT'].split(' - ')[0]) / float(_API_data['seasons'][0]['3PT'].split(' - ')[1]))*100).split('.')[0] + '%)'
-			#except ZeroDivisionError: pass
-			#try: _API_data['seasons'][0]['2PT'] +=  ' (' + str((float(_API_data['seasons'][0]['2PT'].split(' - ')[0]) / float(_API_data['seasons'][0]['2PT'].split(' - ')[1]))*100).split('.')[0] + '%)'
-			#except ZeroDivisionError: pass
-			#try: _API_data['seasons'][0]['3PT TOT'] +=  ' (' + str((float(_API_data['seasons'][0]['3PT TOT'].split(' - ')[0]) / float(_API_data['seasons'][0]['3PT TOT'].split(' - ')[1]))*100).split('.')[0] + '%)'
-			#except ZeroDivisionError: pass
-			#try: _API_data['seasons'][0]['2PT TOT'] +=  ' (' + str((float(_API_data['seasons'][0]['2PT TOT'].split(' - ')[0]) / float(_API_data['seasons'][0]['2PT TOT'].split(' - ')[1]))*100).split('.')[0] + '%)'
-			#except ZeroDivisionError: pass
+			if(self.auto_game.isChecked()):
+				_period = 'TODAY'
+				for statistic in self._pcheckboxes:
+					if(statistic.isChecked()):
+						_info += '    ' + statistic.text()
 
+			if(self.auto_season.isChecked()):
+				_period = 'SEASON'
+				for statistic in self._scheckboxes:
+					if(statistic.isChecked()):
+						_info += '    ' + statistic.text()
 
-			self.indivstats2_info.setText('')
-			self.indivstats_season_statistic.clear()
-			self.indivstats_game_statistic.clear()
-			for key, value in sorted(_API_data['seasons'][0].iteritems()):
-				try:
-					self.indivstats_season_statistic.addItem(key + ':   ' + str(value), [key, str(value)])
-				except UnicodeEncodeError:
-					self.indivstats_season_statistic.addItem(key + ':   ' + value, [key, value])
+			if(self.auto_gamelog.isChecked()):
+				for statistic in self._gcheckboxes:
+					if(statistic.isChecked()):
+						_info += '    ' + statistic.text()
+
+			if(self.auto_manual.isChecked()):
+				_info = ''
+
+			self.indivstats2_info.setText(_info.strip())
+			self.indivstats2_period.setText(_period.strip())
+
+		if(command == 'POPULATE GAME STATISTICS'):
+			_pdata = self.player_by_ID(_pid) # Get selected player info from VM
+
+			#print json.dumps(_pdata, sort_keys=True, indent=4)
 			
-			for key, value in sorted(player.iteritems()):
-				try:
-					self.indivstats_game_statistic.addItem(key + ':   ' + str(value), [key, str(value)])
-				except UnicodeEncodeError:
-					self.indivstats_game_statistic.addItem(key + ':   ' + value, [key, value])
+			self.game_2pt.setText('2PT: %s' % _pdata['two'])
+			self.game_3pt.setText('3PT: %s' % _pdata['trey'])
+			self.game_ft.setText('FT: %s' % _pdata['ft'])
+			self.game_pts.setText('%s PTS' % _pdata['points_tot'])
+			self.game_reb.setText('%s REB' % _pdata['reb_tot'])
+			self.game_ast.setText('%s AST' % _pdata['assists'])
+			self.game_stl.setText('%s STL' % _pdata['stl'])
+			self.game_blk.setText('%s BLK' % _pdata['blk'])
+			self.game_fouls.setText('%s FOULS' % _pdata['fouls'])
+			
+		if(command == 'POPULATE SEASON STATISTICS'):
+			_sdata = self.indivstats_season.itemData(self.indivstats_season.currentIndex())
 
-			if(self.auto_pts.isChecked()): self.indivstats2_info.setText(self.indivstats2_info.text() + '    ' + str(player['points_tot']) + ' PTS')
-			if(self.auto_reb.isChecked()): self.indivstats2_info.setText(self.indivstats2_info.text() + '    ' + str(player['reb_tot']) + ' REB')
-			if(self.auto_ast.isChecked()): self.indivstats2_info.setText(self.indivstats2_info.text() + '    ' + str(player['assists']) + ' AST')
-			if(self.auto_stl.isChecked()): self.indivstats2_info.setText(self.indivstats2_info.text() + '    ' + str(player['stl']) + ' STL')
-			if(self.auto_blk.isChecked()): self.indivstats2_info.setText(self.indivstats2_info.text() + '    ' + str(player['blk']) + ' BLK')
-			if(self.auto_fouls.isChecked()): self.indivstats2_info.setText(self.indivstats2_info.text() + '    ' + str(player['fouls']) + ' FOULS')
-			if(self.auto_3pt.isChecked()): self.indivstats2_info.setText(self.indivstats2_info.text() + '    3PT - ' + str(player['trey']))
-			if(self.auto_2pt.isChecked()): self.indivstats2_info.setText(self.indivstats2_info.text() + '    2PT - ' + str(player['two']))
-			if(self.auto_ft.isChecked()): self.indivstats2_info.setText(self.indivstats2_info.text() + '    FT - ' + str(player['ft']))
+			#print json.dumps(_sdata, sort_keys=True, indent=4)
+						
+			self.season_2pt.setText('2PT: %s' % _sdata['two_avg'])
+			self.season_3pt.setText('3PT: %s' % _sdata['trey_avg'])
+			self.season_ft.setText('FT: %s' % _sdata['ft_avg'])
+			self.season_reb.setText('%s REB' % _sdata['reb_avg'])
+			self.season_ast.setText('%s AST' % _sdata['ast_avg'])
+			self.season_stl.setText('%s STL' % _sdata['stl_avg'])
+			self.season_blk.setText('%s BLK' % _sdata['blk_avg'])
+			self.season_fouls.setText('%s FOULS' % _sdata['pfoul_avg'])
+			self.season_gp.setText('%s GP' % _sdata['gp'])
+			self.season_to.setText('%s TO' % _sdata['turnover_avg'])
+			self.season_minutes.setText('%s MIN' % _sdata['minutes_avg'])
+
+		if(command == 'POPULATE GAMELOG STATISTICS'):
+			_gdata = self.indivstats_gamelogs.itemData(self.indivstats_gamelogs.currentIndex())
+
+			#print json.dumps(_gdata, sort_keys=True, indent=4)
+						
+			self.gamelog_2pt.setText('2PT: %s' % _gdata['two'])
+			self.gamelog_3pt.setText('3PT: %s' % _gdata['trey'])
+			self.gamelog_ft.setText('FT: %s' % _gdata['ft'])
+			self.gamelog_pts.setText('%s PTS' % _gdata['points_tot'])
+			self.gamelog_reb.setText('%s REB' % _gdata['reb_tot'])
+			self.gamelog_ast.setText('%s AST' % _gdata['ast'])
+			self.gamelog_stl.setText('%s STL' % _gdata['stl'])
+			self.gamelog_blk.setText('%s BLK' % _gdata['blk'])
+			self.gamelog_fouls.setText('%s FOULS' % _gdata['pfoul'])
+			self.gamelog_minutes.setText('%s MIN' % _gdata['minutes'])
+
+		if(command == 'LOAD STATISTICS TO VM THEN POPULATE'): # Load indiv statistics from chosen player based on player_id
+			self.indivstats_gamelogs.blockSignals(True)
+			self.indivstats_season.blockSignals(True)
+
+			self.load_API(False) # Load current game data into VM only
+			self.loadPlayerDataToVM(_pid) # Load career data into VM
+
+			self.indivstats_gamelogs.blockSignals(False)
+			self.indivstats_season.blockSignals(False)
+
+			self.indivstats_handler('POPULATE GAME STATISTICS')
+			self.indivstats_handler('POPULATE SEASON STATISTICS')
+			self.indivstats_handler('POPULATE GAMELOG STATISTICS')
+			self.indivstats_handler('AUTOFILL')
 
 		if(command == 'ADD'):
 			self.sendTCP('CG 1-70 ADD 1 "_011 Player stats box-CG" 1 ' + self.dict_to_templateData(_dict))
@@ -387,6 +445,19 @@ class CasparCGController(QtGui.QMainWindow, design.Ui_MainWindow):
 		self.tcpWorker.error.connect(lambda: QtGui.QMessageBox.critical(self, "TCP Error", str("CasparCG connection error."), QtGui.QMessageBox.Abort))
 		self.tcpWorker.files.connect(self.filePopulator)
 		self.tcpWorker.start()
+		self.sendTCP('MIXER 1-40 FILL 0.084375 0.166667 0.85 0.85 0 Linear')
+		self.sendTCP('MIXER 1-120 FILL 0.084375 0.166667 0.85 0.85 0 Linear')
+		self.sendTCP('MIXER 1-70 FILL -0.015625 0.236111 0.85 0.85 0 Linear')
+		self.sendTCP('MIXER 1-100 FILL 0.075 0.138889 0.85 0.85 0 Linear')
+		self.sendTCP('MIXER 1-10 FILL 0.05 0.0972222 0.9 0.9 0 Linear')
+		self.sendTCP('MIXER 1-80 FILL 0.05 0.0972222 0.9 0.9 0 Linear')
+		self.sendTCP('MIXER 1-90 FILL 0.05 0.0972222 0.9 0.9 0 Linear')
+		self.sendTCP('MIXER 1-20 FILL 0.05 0.0972222 0.9 0.9 0 Linear')
+		self.sendTCP('MIXER 1-110 FILL 0.05 0.0972222 0.9 0.9 0 Linear')
+		self.sendTCP('MIXER 1-50 FILL 0.05 0.0972222 0.9 0.9 0 Linear')
+		self.sendTCP('MIXER 1-51 FILL 0.05 0.0972222 0.9 0.9 0 Linear')
+		self.sendTCP('MIXER 1-60 FILL 0.05 0.0972222 0.9 0.9 0 Linear')
+		self.sendTCP('MIXER 1-30 FILL 0.05 0.305556 0.9 0.9 0 Linear')
 		self.tcpWorker.TLS()
 
 	def init_SerialWorker(self):
@@ -396,7 +467,7 @@ class CasparCGController(QtGui.QMainWindow, design.Ui_MainWindow):
 		self.serialWorker.to_caspar.connect(self.serial_handler)
 		self.serialWorker.start()
 
-	def scan(self): #scan for available ports. return a list of tuples (num, name)
+	def serial_scan(self): #scan for available ports. return a list of tuples (num, name)
 		available = []
 		ports = glob.glob('/dev/tty.*')
 
@@ -934,13 +1005,13 @@ class SerialWorker(QtCore.QThread):
 					ascii_to_int[x] = ord(char)
 
 				self._dict = dict(
-				home_score = self.returnTeamScore(ascii_to_int[10 + self.offset], ascii_to_int[9 + self.offset]),
-				home_fouls = self.returnFouls(ascii_to_int[24 + self.offset]),
-				away_score = self.returnTeamScore(ascii_to_int[8 + self.offset], ascii_to_int[7 + self.offset]),
-				away_fouls = self.returnFouls(ascii_to_int[23 + self.offset]),
-				quarter = self.returnQuarter(ascii_to_int[17 + self.offset], ascii_to_int[18 + self.offset]),
-				game_clock = self.returnGameTime(ascii_to_int[11 + self.offset], ascii_to_int[12 + self.offset], ascii_to_int[13 + self.offset], ascii_to_int[14 + self.offset]),
-				shot_clock = self.returnShotClock(ascii_to_int[26 + self.offset])
+					home_score = self.returnTeamScore(ascii_to_int[10 + self.offset], ascii_to_int[9 + self.offset]),
+					home_fouls = self.returnFouls(ascii_to_int[24 + self.offset]),
+					away_score = self.returnTeamScore(ascii_to_int[8 + self.offset], ascii_to_int[7 + self.offset]),
+					away_fouls = self.returnFouls(ascii_to_int[23 + self.offset]),
+					quarter = self.returnQuarter(ascii_to_int[17 + self.offset], ascii_to_int[18 + self.offset]),
+					game_clock = self.returnGameTime(ascii_to_int[11 + self.offset], ascii_to_int[12 + self.offset], ascii_to_int[13 + self.offset], ascii_to_int[14 + self.offset]),
+					shot_clock = self.returnShotClock(ascii_to_int[26 + self.offset])
 				)
 
 				if(self._dict != self._old_dict): # Bandwidth limiting, avoid saturating network with repeating TCP requests
