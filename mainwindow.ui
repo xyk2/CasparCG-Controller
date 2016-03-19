@@ -316,7 +316,7 @@
      <enum>QTabWidget::Rounded</enum>
     </property>
     <property name="currentIndex">
-     <number>5</number>
+     <number>1</number>
     </property>
     <property name="elideMode">
      <enum>Qt::ElideRight</enum>
@@ -1034,6 +1034,9 @@
         <width>170</width>
         <height>58</height>
        </rect>
+      </property>
+      <property name="editTriggers">
+       <set>QAbstractItemView::AllEditTriggers</set>
       </property>
       <property name="alternatingRowColors">
        <bool>false</bool>
@@ -2050,19 +2053,19 @@
          </widget>
         </item>
         <item>
-         <widget class="QComboBox" name="lineup_player_b6"/>
+         <widget class="QComboBox" name="lineup_player_6"/>
         </item>
         <item>
-         <widget class="QComboBox" name="lineup_player_b7"/>
+         <widget class="QComboBox" name="lineup_player_7"/>
         </item>
         <item>
-         <widget class="QComboBox" name="lineup_player_b8"/>
+         <widget class="QComboBox" name="lineup_player_8"/>
         </item>
         <item>
-         <widget class="QComboBox" name="lineup_player_b9"/>
+         <widget class="QComboBox" name="lineup_player_9"/>
         </item>
         <item>
-         <widget class="QComboBox" name="lineup_player_b10"/>
+         <widget class="QComboBox" name="lineup_player_10"/>
         </item>
        </layout>
       </widget>
@@ -3754,7 +3757,7 @@
        <rect>
         <x>210</x>
         <y>10</y>
-        <width>182</width>
+        <width>253</width>
         <height>41</height>
        </rect>
       </property>
@@ -3777,6 +3780,24 @@
          </property>
          <property name="text">
           <string>►</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="indivstats2_auto">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Minimum" vsizetype="Expanding">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="font">
+          <font>
+           <family>Helvetica Neue</family>
+          </font>
+         </property>
+         <property name="text">
+          <string>► 10s</string>
          </property>
         </widget>
        </item>
@@ -4017,6 +4038,197 @@
       <property name="orientation">
        <enum>Qt::Vertical</enum>
       </property>
+     </widget>
+     <widget class="QTableWidget" name="team_stats_table">
+      <property name="geometry">
+       <rect>
+        <x>420</x>
+        <y>90</y>
+        <width>271</width>
+        <height>251</height>
+       </rect>
+      </property>
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Fixed" vsizetype="Expanding">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="verticalScrollBarPolicy">
+       <enum>Qt::ScrollBarAlwaysOff</enum>
+      </property>
+      <property name="horizontalScrollBarPolicy">
+       <enum>Qt::ScrollBarAlwaysOff</enum>
+      </property>
+      <property name="selectionMode">
+       <enum>QAbstractItemView::SingleSelection</enum>
+      </property>
+      <property name="selectionBehavior">
+       <enum>QAbstractItemView::SelectRows</enum>
+      </property>
+      <property name="showGrid">
+       <bool>true</bool>
+      </property>
+      <property name="columnCount">
+       <number>3</number>
+      </property>
+      <attribute name="horizontalHeaderDefaultSectionSize">
+       <number>110</number>
+      </attribute>
+      <attribute name="verticalHeaderDefaultSectionSize">
+       <number>23</number>
+      </attribute>
+      <row>
+       <property name="text">
+        <string>FOUL</string>
+       </property>
+      </row>
+      <row>
+       <property name="text">
+        <string>2PT</string>
+       </property>
+      </row>
+      <row>
+       <property name="text">
+        <string>3PT</string>
+       </property>
+      </row>
+      <row>
+       <property name="text">
+        <string>FT</string>
+       </property>
+      </row>
+      <row>
+       <property name="text">
+        <string>REB-D</string>
+       </property>
+      </row>
+      <row>
+       <property name="text">
+        <string>REB-O</string>
+       </property>
+      </row>
+      <row>
+       <property name="text">
+        <string>REB</string>
+       </property>
+      </row>
+      <row>
+       <property name="text">
+        <string>AST</string>
+       </property>
+      </row>
+      <row>
+       <property name="text">
+        <string>STL</string>
+       </property>
+      </row>
+      <row>
+       <property name="text">
+        <string>BLK</string>
+       </property>
+      </row>
+      <column>
+       <property name="text">
+        <string>HOME</string>
+       </property>
+      </column>
+      <column>
+       <property name="text">
+        <string>AWAY</string>
+       </property>
+      </column>
+      <column/>
+     </widget>
+     <widget class="QWidget" name="layoutWidget_2">
+      <property name="geometry">
+       <rect>
+        <x>420</x>
+        <y>10</y>
+        <width>266</width>
+        <height>41</height>
+       </rect>
+      </property>
+      <layout class="QHBoxLayout" name="horizontalLayout_8">
+       <property name="spacing">
+        <number>5</number>
+       </property>
+       <item>
+        <widget class="QPushButton" name="team_stats_play_2">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Minimum" vsizetype="Expanding">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="font">
+          <font>
+           <family>Helvetica Neue</family>
+          </font>
+         </property>
+         <property name="text">
+          <string>►</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="team_stats_auto_2">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Minimum" vsizetype="Expanding">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="font">
+          <font>
+           <family>Helvetica Neue</family>
+          </font>
+         </property>
+         <property name="text">
+          <string>► 5s</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="team_stats_stop_2">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Minimum" vsizetype="Expanding">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="font">
+          <font>
+           <family>Helvetica Neue</family>
+           <pointsize>8</pointsize>
+           <weight>50</weight>
+           <bold>false</bold>
+          </font>
+         </property>
+         <property name="text">
+          <string>█</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="team_stats_update_2">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Minimum" vsizetype="Expanding">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="font">
+          <font>
+           <family>Helvetica Neue</family>
+          </font>
+         </property>
+         <property name="text">
+          <string>UPDATE</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
      </widget>
     </widget>
     <widget class="QWidget" name="tab_8">

@@ -523,6 +523,7 @@ class CasparCGController(QtGui.QMainWindow, design.Ui_MainWindow):
 		)
 
 		if(command == 'ADD'):
+			self.sendTCP('MIXER 1-110 FILL 0.05 0.0972222 0.9 0.9 0 Linear')
 			self.tcpWorker.send('CG 1-110 ADD 1 "_017 Score 3-CG" 1 ' + self.dict_to_templateData(_dict))
 
 		if(command == 'STOP'):
@@ -542,6 +543,7 @@ class CasparCGController(QtGui.QMainWindow, design.Ui_MainWindow):
 		)
 
 		if(command == 'ADD'):
+			self.sendTCP('MIXER 1-110 FILL 0.05 0.0972222 0.9 0.9 0 Linear')
 			self.tcpWorker.send('CG 1-110 ADD 1 "_004 Score 2-CG" 1 ' + self.dict_to_templateData(_dict))
 
 		if(command == 'STOP'):
@@ -576,6 +578,7 @@ class CasparCGController(QtGui.QMainWindow, design.Ui_MainWindow):
 			self.qbyq_away_score.setText(str(_away))
 
 		if(command == 'ADD'):
+			self.sendTCP('MIXER 1-100 FILL 0.075 0.138889 0.85 0.85 0 Linear')
 			self.tcpWorker.send('CG 1-100 ADD 1 "_010 Score by quarter-CG" 1 ' + self.dict_to_templateData(_dict))
 
 		if(command == 'STOP'):
@@ -592,6 +595,7 @@ class CasparCGController(QtGui.QMainWindow, design.Ui_MainWindow):
 		)
 
 		if(command == 'ADD'):
+			self.sendTCP('MIXER 1-10 FILL 0.05 0.0972222 0.9 0.9 0 Linear')
 			self.tcpWorker.send('CG 1-10 ADD 1 "_001 COMMENTATORS-CG" 1 ' + self.dict_to_templateData(_dict))
 
 		if(command == 'STOP'):
@@ -608,6 +612,7 @@ class CasparCGController(QtGui.QMainWindow, design.Ui_MainWindow):
 		)
 
 		if(command == 'ADD'):
+			self.sendTCP('MIXER 1-20 FILL 0.05 0.0972222 0.9 0.9 0 Linear')
 			self.tcpWorker.send('CG 1-20 ADD 1 "_002 Officials-CG" 1 ' + self.dict_to_templateData(_dict))
 
 		if(command == 'STOP'):
@@ -703,6 +708,7 @@ class CasparCGController(QtGui.QMainWindow, design.Ui_MainWindow):
 		)
 
 		if(command == 'ADD'):
+			self.sendTCP('MIXER 1-40 FILL 0.084375 0.166667 0.85 0.85 0 Linear')
 			self.sendTCP('CG 1-40 ADD 1 "_003 Score line-CG" 1 ' + self.dict_to_templateData(_dict))
 
 		if(command == 'STOP'):
@@ -743,6 +749,7 @@ class CasparCGController(QtGui.QMainWindow, design.Ui_MainWindow):
 		)
 
 		if(command == 'ADD'): 
+			self.sendTCP('MIXER 1-50 FILL 0.05 0.0972222 0.9 0.9 0 Linear')
 			self.sendTCP('CG 1-50 ADD 1 "_015 Starting lineup faces-CG" 1 ' + self.dict_to_templateData(_dict))
 		
 		if(command == 'STOP'): 
@@ -783,6 +790,7 @@ class CasparCGController(QtGui.QMainWindow, design.Ui_MainWindow):
 		)
 
 		if(command == 'ADD'):
+			self.sendTCP('MIXER 1-51 FILL 0.05 0.0972222 0.9 0.9 0 Linear')
 			self.sendTCP('CG 1-51 ADD 1 "_015 Starting lineup faces-CG" 1 ' + self.dict_to_templateData(_dict))
 
 		if(command == 'STOP'):
@@ -832,6 +840,7 @@ class CasparCGController(QtGui.QMainWindow, design.Ui_MainWindow):
 		)
 
 		if(command == 'ADD'):
+			self.sendTCP('MIXER 1-60 FILL 0.05 0.0972222 0.9 0.9 0 Linear')
 			self.sendTCP('CG 1-60 ADD 1 "_012 Game stats-CG" 1 ' + self.dict_to_templateData(_dict))
 
 		if(command == 'STOP'):
@@ -853,6 +862,7 @@ class CasparCGController(QtGui.QMainWindow, design.Ui_MainWindow):
 			f1 = self.gp_f1.text().encode('utf-8')
 		)		
 		if(command == 'ADD'):
+			self.sendTCP('MIXER 1-80 FILL 0.05 0.0972222 0.9 0.9 0 Linear')
 			self.sendTCP('CG 1-80 ADD 1 "_100 General purpose 1-CG" 1 ' + self.dict_to_templateData(_dict))
 
 		if(command == 'STOP'):
@@ -870,6 +880,7 @@ class CasparCGController(QtGui.QMainWindow, design.Ui_MainWindow):
 		)
 
 		if(command == 'ADD'):
+			self.sendTCP('MIXER 1-90 FILL 0.05 0.0972222 0.9 0.9 0 Linear')
 			self.sendTCP('CG 1-90 ADD 1 "_100 General purpose 1-CG" 1 ' + self.dict_to_templateData(_dict))
 
 		if(command == 'STOP'):
