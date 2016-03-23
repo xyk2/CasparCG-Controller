@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'mainwindow.ui'
 #
-# Created: Sun Mar 20 03:49:44 2016
+# Created: Wed Mar 23 15:42:43 2016
 #      by: pyside-uic 0.2.15 running on PySide 1.2.2
 #
 # WARNING! All changes made in this file will be lost!
@@ -2235,32 +2235,14 @@ class Ui_MainWindow(object):
         self.scoreboard_ad_out.setFont(font)
         self.scoreboard_ad_out.setObjectName("scoreboard_ad_out")
         self.horizontalLayout_27.addWidget(self.scoreboard_ad_out)
-        self.layoutWidget_26 = QtGui.QWidget(self.centralWidget)
-        self.layoutWidget_26.setGeometry(QtCore.QRect(260, 600, 203, 41))
-        self.layoutWidget_26.setObjectName("layoutWidget_26")
-        self.horizontalLayout_28 = QtGui.QHBoxLayout(self.layoutWidget_26)
-        self.horizontalLayout_28.setSpacing(5)
-        self.horizontalLayout_28.setContentsMargins(0, 0, 0, 0)
-        self.horizontalLayout_28.setObjectName("horizontalLayout_28")
-        self.stop_all_except_scoreboard = QtGui.QPushButton(self.layoutWidget_26)
-        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Expanding)
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.stop_all_except_scoreboard.sizePolicy().hasHeightForWidth())
-        self.stop_all_except_scoreboard.setSizePolicy(sizePolicy)
-        font = QtGui.QFont()
-        font.setFamily("Helvetica Neue")
-        font.setPointSize(13)
-        font.setWeight(50)
-        font.setBold(False)
-        self.stop_all_except_scoreboard.setFont(font)
-        self.stop_all_except_scoreboard.setObjectName("stop_all_except_scoreboard")
-        self.horizontalLayout_28.addWidget(self.stop_all_except_scoreboard)
         self.line_6 = QtGui.QFrame(self.centralWidget)
         self.line_6.setGeometry(QtCore.QRect(240, 580, 701, 20))
         self.line_6.setFrameShape(QtGui.QFrame.HLine)
         self.line_6.setFrameShadow(QtGui.QFrame.Sunken)
         self.line_6.setObjectName("line_6")
+        self.invert_teams = QtGui.QCheckBox(self.centralWidget)
+        self.invert_teams.setGeometry(QtCore.QRect(450, 560, 101, 18))
+        self.invert_teams.setObjectName("invert_teams")
         MainWindow.setCentralWidget(self.centralWidget)
         self.menuBar = QtGui.QMenuBar()
         self.menuBar.setGeometry(QtCore.QRect(0, 0, 958, 22))
@@ -2458,7 +2440,7 @@ class Ui_MainWindow(object):
         self.scoreboard_update.setText(QtGui.QApplication.translate("MainWindow", "UPDATE", None, QtGui.QApplication.UnicodeUTF8))
         self.scoreboard_ad_in.setText(QtGui.QApplication.translate("MainWindow", "AD IN", None, QtGui.QApplication.UnicodeUTF8))
         self.scoreboard_ad_out.setText(QtGui.QApplication.translate("MainWindow", "AD OUT", None, QtGui.QApplication.UnicodeUTF8))
-        self.stop_all_except_scoreboard.setText(QtGui.QApplication.translate("MainWindow", "Stop All Except Scoreboard", None, QtGui.QApplication.UnicodeUTF8))
+        self.invert_teams.setText(QtGui.QApplication.translate("MainWindow", "Invert Teams", None, QtGui.QApplication.UnicodeUTF8))
         self.menuHello.setTitle(QtGui.QApplication.translate("MainWindow", "File", None, QtGui.QApplication.UnicodeUTF8))
         self.actionExit.setText(QtGui.QApplication.translate("MainWindow", "Exit...", None, QtGui.QApplication.UnicodeUTF8))
         self.actionConnect_to_CasparCG.setText(QtGui.QApplication.translate("MainWindow", "Connect to CasparCG...", None, QtGui.QApplication.UnicodeUTF8))

@@ -536,16 +536,27 @@ class CasparCGController(QtGui.QMainWindow, design.Ui_MainWindow):
 		#self.score2_away_score.setText(_dict['away_score'])
 		#self.score2_status.setText(_dict['quarter'])
 		#self.score2_game_time.setText(_dict['game_clock'])
+		if(self.invert_teams.isChecked()):
+			_dict = dict(
+				home_score = 	self.SERIAL_data['away_score'].encode('utf-8'),
+				away_score = 	self.SERIAL_data['home_score'].encode('utf-8'),
+				home_fouls = 	self.SERIAL_data['away_fouls'].encode('utf-8'),
+				away_fouls = 	self.SERIAL_data['home_fouls'].encode('utf-8'),
+				game_clock = 	self.SERIAL_data['game_clock'].encode('utf-8'),
+				shot_clock = 	self.SERIAL_data['shot_clock'].encode('utf-8'),
+				quarter = 		self.SERIAL_data['quarter'].encode('utf-8')
+			)
+		else:
+			_dict = dict(
+				home_score = 	self.SERIAL_data['home_score'].encode('utf-8'),
+				away_score = 	self.SERIAL_data['away_score'].encode('utf-8'),
+				home_fouls = 	self.SERIAL_data['home_fouls'].encode('utf-8'),
+				away_fouls = 	self.SERIAL_data['away_fouls'].encode('utf-8'),
+				game_clock = 	self.SERIAL_data['game_clock'].encode('utf-8'),
+				shot_clock = 	self.SERIAL_data['shot_clock'].encode('utf-8'),
+				quarter = 		self.SERIAL_data['quarter'].encode('utf-8')
+			)
 
-		_dict = dict(
-			home_score = 	self.SERIAL_data['home_score'].encode('utf-8'),
-			away_score = 	self.SERIAL_data['away_score'].encode('utf-8'),
-			home_fouls = 	self.SERIAL_data['home_fouls'].encode('utf-8'),
-			away_fouls = 	self.SERIAL_data['away_fouls'].encode('utf-8'),
-			game_clock = 	self.SERIAL_data['game_clock'].encode('utf-8'),
-			shot_clock = 	self.SERIAL_data['shot_clock'].encode('utf-8'),
-			quarter = 		self.SERIAL_data['quarter'].encode('utf-8')
-		)
 		self.sendTCP('CG 1-40 UPDATE 1 ' + self.dict_to_templateData(_dict))
 
 	def score3_handler(self, command):
