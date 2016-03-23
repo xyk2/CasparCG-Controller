@@ -115,7 +115,7 @@ class CasparCGController(QtGui.QMainWindow, design.Ui_MainWindow):
 		self.tabWidget.currentChanged.connect(self.tabWidgetChanged)
 
 		self._pcheckboxes = [self.game_2pt, self.game_3pt, self.game_ft, self.game_pts, self.game_reb, self.game_ast, self.game_stl, self.game_blk, self.game_fouls]
-		self._scheckboxes = [self.season_2pt, self.season_3pt, self.season_ft, self.season_reb, self.season_ast, self.season_stl, self.season_blk, self.season_fouls, self.season_gp, self.season_to, self.season_minutes]
+		self._scheckboxes = [self.season_2pt, self.season_3pt, self.season_pts, self.season_ft, self.season_reb, self.season_ast, self.season_stl, self.season_blk, self.season_fouls, self.season_gp, self.season_to, self.season_minutes]
 		self._gcheckboxes = [self.gamelog_2pt, self.gamelog_3pt, self.gamelog_ft, self.gamelog_pts, self.gamelog_reb, self.gamelog_ast, self.gamelog_stl, self.gamelog_blk, self.gamelog_fouls, self.gamelog_minutes]
 		for checkbox in (self._pcheckboxes + self._scheckboxes + self._gcheckboxes): # When checkboxes are toggled, update data 
 			checkbox.toggled.connect(lambda: self.indivstats_handler('AUTOFILL'))
@@ -418,6 +418,7 @@ class CasparCGController(QtGui.QMainWindow, design.Ui_MainWindow):
 						
 			self.season_2pt.setText('2PT: %s' % _sdata['two_avg'])
 			self.season_3pt.setText('3PT: %s' % _sdata['trey_avg'])
+			self.season_pts.setText('PTS: %s' % _sdata['points_avg'])
 			self.season_ft.setText('FT: %s' % _sdata['ft_avg'])
 			self.season_reb.setText('%s REB' % _sdata['reb_avg'])
 			self.season_ast.setText('%s AST' % _sdata['ast_avg'])
@@ -522,40 +523,26 @@ class CasparCGController(QtGui.QMainWindow, design.Ui_MainWindow):
 
 	def serial_handler(self, _dict):
 		self.SERIAL_data = _dict
-		#self.home_score.setText(_dict['home_score'])
-		#self.home_fouls.setText(_dict['home_fouls'])
-		#self.away_score.setText(_dict['away_score'])
-		#self.away_fouls.setText(_dict['away_fouls'])
-		#self.quarter.setText(_dict['quarter'])
-		#self.game_clock.setText(_dict['game_clock'])
-		#self.shot_clock.setText(_dict['shot_clock'])
 
-		#self.score3_home_score.setText(_dict['home_score'])
-		#self.score3_away_score.setText(_dict['away_score'])
-		#self.score2_home_score.setText(_dict['home_score'])
-		#self.score2_away_score.setText(_dict['away_score'])
-		#self.score2_status.setText(_dict['quarter'])
-		#self.score2_game_time.setText(_dict['game_clock'])
 		if(self.invert_teams.isChecked()):
-			_dict = dict(
-				home_score = 	self.SERIAL_data['away_score'].encode('utf-8'),
-				away_score = 	self.SERIAL_data['home_score'].encode('utf-8'),
-				home_fouls = 	self.SERIAL_data['away_fouls'].encode('utf-8'),
-				away_fouls = 	self.SERIAL_data['home_fouls'].encode('utf-8'),
-				game_clock = 	self.SERIAL_data['game_clock'].encode('utf-8'),
-				shot_clock = 	self.SERIAL_data['shot_clock'].encode('utf-8'),
-				quarter = 		self.SERIAL_data['quarter'].encode('utf-8')
-			)
-		else:
-			_dict = dict(
-				home_score = 	self.SERIAL_data['home_score'].encode('utf-8'),
-				away_score = 	self.SERIAL_data['away_score'].encode('utf-8'),
-				home_fouls = 	self.SERIAL_data['home_fouls'].encode('utf-8'),
-				away_fouls = 	self.SERIAL_data['away_fouls'].encode('utf-8'),
-				game_clock = 	self.SERIAL_data['game_clock'].encode('utf-8'),
-				shot_clock = 	self.SERIAL_data['shot_clock'].encode('utf-8'),
-				quarter = 		self.SERIAL_data['quarter'].encode('utf-8')
-			)
+			_home_score = self.SERIAL_data['home_score']
+			_away_score = self.SERIAL_data['away_score']
+			_home_fouls = self.SERIAL_data['home_fouls']
+			_away_fouls = self.SERIAL_data['away_fouls']
+			self.SERIAL_data['home_score'] = _away_score
+			self.SERIAL_data['away_score'] = _home_score
+			self.SERIAL_data['home_fouls'] = _away_fouls
+			self.SERIAL_data['away_fouls'] = _home_fouls
+
+		_dict = dict(
+			home_score = 	self.SERIAL_data['home_score'].encode('utf-8'),
+			away_score = 	self.SERIAL_data['away_score'].encode('utf-8'),
+			home_fouls = 	self.SERIAL_data['home_fouls'].encode('utf-8'),
+			away_fouls = 	self.SERIAL_data['away_fouls'].encode('utf-8'),
+			game_clock = 	self.SERIAL_data['game_clock'].encode('utf-8'),
+			shot_clock = 	self.SERIAL_data['shot_clock'].encode('utf-8'),
+			quarter = 		self.SERIAL_data['quarter'].encode('utf-8')
+		)
 
 		self.sendTCP('CG 1-40 UPDATE 1 ' + self.dict_to_templateData(_dict))
 
@@ -862,7 +849,7 @@ class CasparCGController(QtGui.QMainWindow, design.Ui_MainWindow):
 			return
 
 
-		_statistic = ['FOULS', '2 POINT', '3 POINT', 'FREE THROWS', 'OFFENSIVE REBOUNDS', 'DEFENSIVE REBOUNDS', 'REBOUNDS', 'ASSISTS', 'STEALS', 'BLOCKS']
+		_statistic = ['FOULS', '2 POINT', '3 POINT', 'FREE THROWS', 'DEFENSIVE REBOUNDS', 'OFFENSIVE REBOUNDS', 'REBOUNDS', 'ASSISTS', 'STEALS', 'BLOCKS']
 
 		_dict = dict(
 			home = self.team_stats_table.item(row, 0).text().encode('utf-8'),

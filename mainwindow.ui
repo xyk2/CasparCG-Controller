@@ -3204,6 +3204,24 @@
         </widget>
        </item>
        <item>
+        <widget class="QCheckBox" name="season_pts">
+         <property name="font">
+          <font>
+           <pointsize>11</pointsize>
+          </font>
+         </property>
+         <property name="text">
+          <string>PTS (%)</string>
+         </property>
+         <property name="iconSize">
+          <size>
+           <width>10</width>
+           <height>10</height>
+          </size>
+         </property>
+        </widget>
+       </item>
+       <item>
         <widget class="QCheckBox" name="season_ft">
          <property name="font">
           <font>

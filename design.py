@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'mainwindow.ui'
 #
-# Created: Wed Mar 23 15:42:43 2016
+# Created: Wed Mar 23 18:34:32 2016
 #      by: pyside-uic 0.2.15 running on PySide 1.2.2
 #
 # WARNING! All changes made in this file will be lost!
@@ -1541,6 +1541,13 @@ class Ui_MainWindow(object):
         self.season_3pt.setIconSize(QtCore.QSize(10, 10))
         self.season_3pt.setObjectName("season_3pt")
         self.season.addWidget(self.season_3pt)
+        self.season_pts = QtGui.QCheckBox(self.verticalLayoutWidget_4)
+        font = QtGui.QFont()
+        font.setPointSize(11)
+        self.season_pts.setFont(font)
+        self.season_pts.setIconSize(QtCore.QSize(10, 10))
+        self.season_pts.setObjectName("season_pts")
+        self.season.addWidget(self.season_pts)
         self.season_ft = QtGui.QCheckBox(self.verticalLayoutWidget_4)
         font = QtGui.QFont()
         font.setPointSize(11)
@@ -2371,6 +2378,7 @@ class Ui_MainWindow(object):
         self.gamelog_minutes.setText(QtGui.QApplication.translate("MainWindow", "MINUTES", None, QtGui.QApplication.UnicodeUTF8))
         self.season_2pt.setText(QtGui.QApplication.translate("MainWindow", "2PT (%)", None, QtGui.QApplication.UnicodeUTF8))
         self.season_3pt.setText(QtGui.QApplication.translate("MainWindow", "3PT (%)", None, QtGui.QApplication.UnicodeUTF8))
+        self.season_pts.setText(QtGui.QApplication.translate("MainWindow", "PTS (%)", None, QtGui.QApplication.UnicodeUTF8))
         self.season_ft.setText(QtGui.QApplication.translate("MainWindow", "FT (%)", None, QtGui.QApplication.UnicodeUTF8))
         self.season_reb.setText(QtGui.QApplication.translate("MainWindow", "REB", None, QtGui.QApplication.UnicodeUTF8))
         self.season_ast.setText(QtGui.QApplication.translate("MainWindow", "AST", None, QtGui.QApplication.UnicodeUTF8))
