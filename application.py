@@ -496,6 +496,7 @@ class CasparCGController(QtGui.QMainWindow, design.Ui_MainWindow):
 		self.sendTCP('MIXER 1-51 FILL 0.05 0.0972222 0.9 0.9 0 Linear')
 		self.sendTCP('MIXER 1-60 FILL 0.05 0.0972222 0.9 0.9 0 Linear')
 		self.sendTCP('MIXER 1-30 FILL 0.05 0.305556 0.9 0.9 0 Linear')
+		self.sendTCP('PLAY 1-1 "#ff00ff00" CUT 1 Linear RIGHT')
 		self.tcpWorker.TLS()
 
 	def init_SerialWorker(self):
