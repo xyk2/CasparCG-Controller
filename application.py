@@ -29,6 +29,14 @@ def resource_path(relative_path):
 
     return os.path.join(base_path, relative_path)
 
+def sizeof_fmt(num, suffix='B'):
+    for unit in ['','Ki','Mi','Gi','Ti','Pi','Ei','Zi']:
+        if abs(num) < 1024.0:
+            return "%3.1f%s%s" % (num, unit, suffix)
+        num /= 1024.0
+    return "%.1f%s%s" % (num, 'Yi', suffix)
+
+
 class CasparCGController(QtGui.QMainWindow, design.Ui_MainWindow):
 	def __init__(self):
 		super(self.__class__, self).__init__()
@@ -50,10 +58,14 @@ class CasparCGController(QtGui.QMainWindow, design.Ui_MainWindow):
 			game_clock = '',
 			shot_clock = ''
 		) # Holds dict() of serial data (with 0.1)
+		self.tcp_timeout_count = 0
+		self.tcp_message_count = 0
+		self.tcp_bytes_count = 0
 
-		self.ipaddress.setText(str(self.qsettings.value("TCP_IP", "192.168.2.100")))
-		self.port.setText(str(self.qsettings.value("TCP_PORT", "5250")))
-		self.game_key.setText(str(self.qsettings.value("GAME_KEY", "c3225a372e06cf0cf6ec")))
+		self.ipaddress.setText(str(self.qsettings.value('TCP_IP', '192.168.2.100')))
+		self.port.setText(str(self.qsettings.value('TCP_PORT', '5250')))
+		self.game_key.setText(str(self.qsettings.value('GAME_KEY', 'c3225a372e06cf0cf6ec')))
+		self.invert_teams.setChecked(self.qsettings.value('INVERT_SCORE', False) == 'true')
 
 		self.connectCaspar.clicked.connect(self.init_tcpWorker)
 		self.TLS.clicked.connect(lambda: self.tcpWorker.TLS())
@@ -63,6 +75,7 @@ class CasparCGController(QtGui.QMainWindow, design.Ui_MainWindow):
 		self.ipaddress.textEdited.connect(lambda: self.qsettings.setValue('TCP_IP', self.ipaddress.text()))
 		self.port.textEdited.connect(lambda: self.qsettings.setValue('TCP_PORT', self.port.text()))
 		self.game_key.textEdited.connect(lambda: self.qsettings.setValue('GAME_KEY', self.game_key.text()))
+		self.invert_teams.stateChanged.connect(lambda: self.qsettings.setValue('INVERT_SCORE', self.invert_teams.isChecked()))
 
 		self.serial_scan()
 		self.load_API(True)
@@ -89,6 +102,7 @@ class CasparCGController(QtGui.QMainWindow, design.Ui_MainWindow):
 		self.scoreboard_update.clicked.connect(lambda: self.scoreboard_handler('UPDATE'))
 		self.scoreboard_ad_in.clicked.connect(lambda: self.scoreboard_handler('AD ON'))
 		self.scoreboard_ad_out.clicked.connect(lambda: self.scoreboard_handler('AD OFF'))
+		self.scoreboard_ad_auto.clicked.connect(lambda: self.scoreboard_handler('AD AUTO'))
 
 		self.lineup_play.clicked.connect(lambda: self.lineup_handler('ADD'))
 		self.lineup_stop.clicked.connect(lambda: self.lineup_handler('STOP'))
@@ -182,19 +196,26 @@ class CasparCGController(QtGui.QMainWindow, design.Ui_MainWindow):
 	def sendTCP(self, packet): # tcpWorker encapsulation and error handling, catches uninitialized errors
 		try:
 			self.tcpWorker.send(packet)
+			self.tcp_message_count += 1
+			self.tcp_bytes_count += len(packet)
+			self.tcp_packets.setText('%s packets, %s' %(str(self.tcp_message_count), sizeof_fmt(self.tcp_bytes_count)))
 		except AttributeError:
 			QtGui.QMessageBox.critical(self, "TCP Error", str("CasparCG connection error."), QtGui.QMessageBox.Abort)
 		except socket.timeout:
-			QtGui.QMessageBox.critical(self, "TCP Error", str("CasparCG connection timeout."), QtGui.QMessageBox.Abort)
+			#QtGui.QMessageBox.critical(self, "TCP Error", str("CasparCG connection timeout."), QtGui.QMessageBox.Abort)
+			self.tcp_timeout_count += 1
+			self.tcp_timeouts.setText(str(self.tcp_timeout_count))
 
 	def tabWidgetChanged(self, index): # Called when window of tab widget changes
 		if(index == 5 or index == 4):
 			self.load_API(False)
 
 	def load_API(self, refreshQObjects): # Load API data in appropriate QObjects
-		url = 'http://www.choxue.com/zh-tw/livedash/%s/scoreboard.json' % self.game_key.text().strip()
-		self.debug_console.setText(self.debug_console.toPlainText() + '\r\n' + url)
-		response = urllib.urlopen(url)
+		_key = self.game_key.text().strip().replace('http://www.choxue.com/zh-tw/livedash/', '')
+		_url = 'http://www.choxue.com/zh-tw/livedash/%s/scoreboard.json' % self.game_key.text().strip().replace('http://www.choxue.com/zh-tw/livedash/', '')
+		self.game_key.setText(_key)
+		self.debug_console.setText(self.debug_console.toPlainText() + '\r\n' + _url)
+		response = urllib.urlopen(_url)
 		self.API_data = json.loads(response.read())
 
 		self.API_data['home']['two'] 			+= '   (%s)' % self.stat_percentage(self.API_data['home']['two'])
@@ -222,6 +243,10 @@ class CasparCGController(QtGui.QMainWindow, design.Ui_MainWindow):
 			p['trey'] 			= '%s (%s)' %(p['trey'].replace(' - ', '/') ,self.stat_percentage(p['trey']))
 			p['ft'] 			= '%s (%s)' %(p['ft'].replace(' - ', '/') ,self.stat_percentage(p['ft']))
 			p['logo_src'] 		= 'teams/%s.png' % p['team'].encode('utf-8')
+			if(p['player_id'] is None):
+				p['player_id'] = 0
+			if(p['jersey'] is None):
+				p['jersey'] = 0
 
 
 		self.team_stats_table.setItem(0, 0, QTableWidgetItem(str(self.API_data['home']['fouls'])))
@@ -334,7 +359,8 @@ class CasparCGController(QtGui.QMainWindow, design.Ui_MainWindow):
 			player_info = (str(player['jersey']) + ' | ' + str(player['position'])).encode('utf-8'),
 			statistics = self.indivstats2_info.text().encode('utf-8'),
 			period = self.indivstats2_period.text().encode('utf-8'),
-			headshot_src = player['headshot_src'],
+			#headshot_src = player['headshot_src'],
+			headshot_src = player['logo_src'],
 			logo_src = player['logo_src']
 		)
 
@@ -497,7 +523,7 @@ class CasparCGController(QtGui.QMainWindow, design.Ui_MainWindow):
 		self.sendTCP('MIXER 1-60 FILL 0.05 0.0972222 0.9 0.9 0 Linear')
 		self.sendTCP('MIXER 1-30 FILL 0.05 0.305556 0.9 0.9 0 Linear')
 		self.sendTCP('PLAY 1-1 "#ff00ff00" CUT 1 Linear RIGHT')
-		self.tcpWorker.TLS()
+		QTimer.singleShot(2000, lambda: self.tcpWorker.TLS())
 
 	def init_SerialWorker(self):
 		self.serialWorker = SerialWorker(self.com_comboBox.currentText(), "9600")
@@ -509,6 +535,9 @@ class CasparCGController(QtGui.QMainWindow, design.Ui_MainWindow):
 	def serial_scan(self): #scan for available ports. return a list of tuples (num, name)
 		available = []
 		ports = glob.glob('/dev/tty.*')
+		
+		if sys.platform.startswith('win'):
+			ports = ['COM%s' % (i + 1) for i in range(256)]
 
 		for index, port in enumerate(ports):
 		        try:
@@ -519,11 +548,12 @@ class CasparCGController(QtGui.QMainWindow, design.Ui_MainWindow):
 		            pass
 
 		self.com_comboBox.clear()
-		for n,s in available:
+		for n,s in available[::-1]:
 			self.com_comboBox.addItem(s, n)
 
 	def serial_handler(self, _dict):
 		self.SERIAL_data = _dict
+		self.SERIAL_data['quarter'] = self.SERIAL_data['quarter'] if self.quarter.text() == '' else self.quarter.text()
 
 		if(self.invert_teams.isChecked()):
 			_home_score = self.SERIAL_data['home_score']
@@ -738,8 +768,8 @@ class CasparCGController(QtGui.QMainWindow, design.Ui_MainWindow):
 			quarter = 		self.SERIAL_data['quarter'].encode('utf-8'),
 			home_name = 	self.home_team.text().encode('utf-8'),
 			away_name = 	self.away_team.text().encode('utf-8'),
-			home_src = 		self.API_data['home']['logo_src'].encode('utf-8'),
-			away_src = 		self.API_data['guest']['logo_src'].encode('utf-8'),
+			home_src = 		('teams/%s.png'%self.home_team.text()).encode('utf-8'),
+			away_src = 		('teams/%s.png'%self.away_team.text()).encode('utf-8'),
 			ad_src = 		self.scoreboard_ad.currentText().encode('utf-8')
 		)
 
@@ -753,12 +783,15 @@ class CasparCGController(QtGui.QMainWindow, design.Ui_MainWindow):
 		if(command == 'UPDATE'):
 			self.sendTCP('CG 1-40 UPDATE 1 ' + self.dict_to_templateData(_dict))
 
-		if(command == 'AD ON'):
+		if(command == 'AD ON' or command =='AD AUTO'):
 			self.sendTCP('CG 1-40 UPDATE 1 ' + self.dict_to_templateData(dict(ad_src = _dict['ad_src'])))
 			self.sendTCP('CG 1-40 INVOKE 1 "ad_in"')
 
 		if(command == 'AD OFF'):
 			self.sendTCP('CG 1-40 INVOKE 1 "ad_out"')
+
+		if(command == 'AD AUTO'):
+			QTimer.singleShot(5000, lambda: self.scoreboard_handler('AD OFF'))
 
 	def lineup_handler(self, command):
 		_pid = [self.lineup_player_1.itemData(self.lineup_player_1.currentIndex()), self.lineup_player_2.itemData(self.lineup_player_2.currentIndex()), self.lineup_player_3.itemData(self.lineup_player_3.currentIndex()), self.lineup_player_4.itemData(self.lineup_player_4.currentIndex()), self.lineup_player_5.itemData(self.lineup_player_5.currentIndex())]
@@ -776,11 +809,16 @@ class CasparCGController(QtGui.QMainWindow, design.Ui_MainWindow):
 		info_3 = str(_players[2]['jersey']).encode('utf-8'),
 		info_4 = str(_players[3]['jersey']).encode('utf-8'),
 		info_5 = str(_players[4]['jersey']).encode('utf-8'),
-		src_1 =	_players[0]['headshot_src'],
-		src_2 =	_players[1]['headshot_src'],
-		src_3 =	_players[2]['headshot_src'],
-		src_4 =	_players[3]['headshot_src'],
-		src_5 =	_players[4]['headshot_src'],
+		#src_1 =	_players[0]['headshot_src'],
+		#src_2 =	_players[1]['headshot_src'],
+		#src_3 =	_players[2]['headshot_src'],
+		#src_4 =	_players[3]['headshot_src'],
+		#src_5 =	_players[4]['headshot_src'],
+		src_1 =	_players[0]['logo_src'],
+		src_2 =	_players[1]['logo_src'],
+		src_3 =	_players[2]['logo_src'],
+		src_4 =	_players[3]['logo_src'],
+		src_5 =	_players[4]['logo_src'],
 		ad_src = self.lineup_ad.currentText().encode('utf-8')
 		)
 
@@ -870,7 +908,6 @@ class CasparCGController(QtGui.QMainWindow, design.Ui_MainWindow):
 
 		if(command == 'UPDATE'):
 			self.sendTCP('CG 1-130 UPDATE 1 ' + self.dict_to_templateData(_dict))
-
 
 	def team_stats_handler(self, command):
 		_dict = dict(
@@ -970,8 +1007,6 @@ class CasparCGController(QtGui.QMainWindow, design.Ui_MainWindow):
 		self.sendTCP('CG 1-60 STOP 1')
 		self.sendTCP('CG 1-30 STOP 1')
 
-
-
 	def filePopulator(self, files): # Populate combo boxes after TLS call
 		self.first_comboBox.clear() # STANDINGS
 		self.first_comboBox.addItems(files)
@@ -1020,7 +1055,7 @@ class tcpWorker(QtCore.QThread): # TCP sender
 		QtCore.QThread.__init__(self)
 		self.tcp = None
 		self.tcp = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-		self.tcp.settimeout(1)
+		self.tcp.settimeout(0.5)
 		self.ip = ip
 		self.port = port
 
@@ -1070,7 +1105,7 @@ class SerialWorker(QtCore.QThread):
 		self.serial_arg  = dict(port = port_num, baudrate = port_baud, stopbits = port_stopbits, parity = port_parity, timeout  = None)
 		self.score_digits = [63, 6, 91, 79, 102, 109, 125, 7, 127, 103]
 		self.score_digits_100s = [191, 134, 219, 207, 230, 237, 253, 135, 255, 231] # Indexes for >99 score
-		self.offset = 1
+		self.offset = 4
 		self._old_dict = None # Used to only emit() when data changes
 		self._dict = None # Used to only emit() when data changes
 		self._running = True
@@ -1108,10 +1143,12 @@ class SerialWorker(QtCore.QThread):
 					shot_clock = self.returnShotClock(ascii_to_int[26 + self.offset])
 				)
 
+
 				if(self._dict != self._old_dict): # Bandwidth limiting, avoid saturating network with repeating TCP requests
 					print self._dict
+					self._old_dict = self._dict.copy() # Avoid repeated same-data requests when Invert Score button is clicked
 					self.to_caspar.emit(self._dict)
-					self._old_dict = self._dict
+					
 
 
 

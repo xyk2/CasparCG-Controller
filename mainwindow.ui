@@ -7,11 +7,11 @@
     <x>0</x>
     <y>0</y>
     <width>958</width>
-    <height>698</height>
+    <height>609</height>
    </rect>
   </property>
   <property name="windowTitle">
-   <string>CX CasparCG Controller - 3.20.2016 </string>
+   <string>CX CasparCG Controller - 5.17.2016 </string>
   </property>
   <widget class="QWidget" name="centralWidget">
    <widget class="QGroupBox" name="groupBox_2">
@@ -37,7 +37,7 @@
       <rect>
        <x>0</x>
        <y>20</y>
-       <width>232</width>
+       <width>221</width>
        <height>161</height>
       </rect>
      </property>
@@ -131,7 +131,7 @@
          </font>
         </property>
         <property name="text">
-         <string>c3225a372e06cf0cf6ec</string>
+         <string/>
         </property>
        </widget>
       </item>
@@ -222,7 +222,7 @@
        <family>Helvetica Neue</family>
       </font>
      </property>
-     <layout class="QGridLayout" name="gridLayout_3" rowstretch="0,0" columnstretch="30,70">
+     <layout class="QGridLayout" name="gridLayout_3" rowstretch="0,0" columnstretch="20,80">
       <property name="leftMargin">
        <number>10</number>
       </property>
@@ -249,7 +249,7 @@
          </font>
         </property>
         <property name="text">
-         <string>COM Port:</string>
+         <string>Port:</string>
         </property>
         <property name="alignment">
          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -306,7 +306,7 @@
       <x>250</x>
       <y>10</y>
       <width>701</width>
-      <height>441</height>
+      <height>421</height>
      </rect>
     </property>
     <property name="tabPosition">
@@ -316,7 +316,7 @@
      <enum>QTabWidget::Rounded</enum>
     </property>
     <property name="currentIndex">
-     <number>4</number>
+     <number>0</number>
     </property>
     <property name="elideMode">
      <enum>Qt::ElideRight</enum>
@@ -370,6 +370,9 @@
         <family>Helvetica Neue</family>
         <pointsize>13</pointsize>
        </font>
+      </property>
+      <property name="text">
+       <string>嘉義配天宮聖母盃</string>
       </property>
       <property name="alignment">
        <set>Qt::AlignCenter</set>
@@ -452,6 +455,9 @@
         <family>Helvetica Neue</family>
         <pointsize>13</pointsize>
        </font>
+      </property>
+      <property name="text">
+       <string>嘉義配天宮聖母盃</string>
       </property>
       <property name="alignment">
        <set>Qt::AlignCenter</set>
@@ -566,6 +572,9 @@
         <family>Helvetica Neue</family>
         <pointsize>13</pointsize>
        </font>
+      </property>
+      <property name="text">
+       <string>嘉義配天宮聖母盃</string>
       </property>
       <property name="alignment">
        <set>Qt::AlignCenter</set>
@@ -1190,7 +1199,7 @@
        </font>
       </property>
       <property name="text">
-       <string/>
+       <string>配天宮聖母盃</string>
       </property>
       <property name="alignment">
        <set>Qt::AlignCenter</set>
@@ -1394,7 +1403,7 @@
        </font>
       </property>
       <property name="text">
-       <string/>
+       <string>嘉義配天宮聖母盃</string>
       </property>
       <property name="alignment">
        <set>Qt::AlignCenter</set>
@@ -2933,7 +2942,7 @@
       <property name="geometry">
        <rect>
         <x>540</x>
-        <y>200</y>
+        <y>190</y>
         <width>141</width>
         <height>207</height>
        </rect>
@@ -3158,7 +3167,7 @@
       <property name="geometry">
        <rect>
         <x>380</x>
-        <y>200</y>
+        <y>190</y>
         <width>141</width>
         <height>208</height>
        </rect>
@@ -3435,7 +3444,7 @@
       <property name="geometry">
        <rect>
         <x>220</x>
-        <y>200</y>
+        <y>190</y>
         <width>131</width>
         <height>170</height>
        </rect>
@@ -4264,7 +4273,7 @@
     <property name="geometry">
      <rect>
       <x>254</x>
-      <y>464</y>
+      <y>440</y>
       <width>650</width>
       <height>61</height>
      </rect>
@@ -4283,7 +4292,7 @@
     <property name="geometry">
      <rect>
       <x>271</x>
-      <y>479</y>
+      <y>455</y>
       <width>181</width>
       <height>21</height>
      </rect>
@@ -4291,7 +4300,7 @@
     <property name="font">
      <font>
       <family>Helvetica Neue</family>
-      <pointsize>15</pointsize>
+      <pointsize>13</pointsize>
      </font>
     </property>
    </widget>
@@ -4299,7 +4308,7 @@
     <property name="geometry">
      <rect>
       <x>520</x>
-      <y>479</y>
+      <y>455</y>
       <width>161</width>
       <height>21</height>
      </rect>
@@ -4314,7 +4323,7 @@
     <property name="geometry">
      <rect>
       <x>465</x>
-      <y>470</y>
+      <y>446</y>
       <width>41</width>
       <height>41</height>
      </rect>
@@ -4332,7 +4341,7 @@
     <property name="geometry">
      <rect>
       <x>692</x>
-      <y>470</y>
+      <y>446</y>
       <width>41</width>
       <height>41</height>
      </rect>
@@ -4350,7 +4359,7 @@
     <property name="geometry">
      <rect>
       <x>747</x>
-      <y>479</y>
+      <y>455</y>
       <width>31</width>
       <height>21</height>
      </rect>
@@ -4365,7 +4374,7 @@
     <property name="geometry">
      <rect>
       <x>787</x>
-      <y>470</y>
+      <y>446</y>
       <width>61</width>
       <height>41</height>
      </rect>
@@ -4380,7 +4389,7 @@
     <property name="geometry">
      <rect>
       <x>860</x>
-      <y>470</y>
+      <y>446</y>
       <width>31</width>
       <height>41</height>
      </rect>
@@ -4398,7 +4407,7 @@
     <property name="geometry">
      <rect>
       <x>374</x>
-      <y>524</y>
+      <y>500</y>
       <width>38</width>
       <height>21</height>
      </rect>
@@ -4419,7 +4428,7 @@
     <property name="geometry">
      <rect>
       <x>414</x>
-      <y>524</y>
+      <y>500</y>
       <width>41</width>
       <height>21</height>
      </rect>
@@ -4434,7 +4443,7 @@
     <property name="geometry">
      <rect>
       <x>594</x>
-      <y>524</y>
+      <y>500</y>
       <width>38</width>
       <height>21</height>
      </rect>
@@ -4455,7 +4464,7 @@
     <property name="geometry">
      <rect>
       <x>634</x>
-      <y>524</y>
+      <y>500</y>
       <width>41</width>
       <height>21</height>
      </rect>
@@ -4472,7 +4481,7 @@
       <x>10</x>
       <y>290</y>
       <width>221</width>
-      <height>241</height>
+      <height>221</height>
      </rect>
     </property>
     <property name="baseSize">
@@ -4506,7 +4515,7 @@ p, li { white-space: pre-wrap; }
     <property name="geometry">
      <rect>
       <x>260</x>
-      <y>550</y>
+      <y>526</y>
       <width>182</width>
       <height>41</height>
      </rect>
@@ -4578,7 +4587,7 @@ p, li { white-space: pre-wrap; }
     <property name="geometry">
      <rect>
       <x>710</x>
-      <y>520</y>
+      <y>496</y>
       <width>181</width>
       <height>26</height>
      </rect>
@@ -4589,24 +4598,44 @@ p, li { white-space: pre-wrap; }
      </font>
     </property>
    </widget>
-   <widget class="QWidget" name="layoutWidget_25">
+   <widget class="Line" name="line_6">
     <property name="geometry">
      <rect>
-      <x>710</x>
-      <y>550</y>
-      <width>182</width>
+      <x>240</x>
+      <y>556</y>
+      <width>701</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="orientation">
+     <enum>Qt::Horizontal</enum>
+    </property>
+   </widget>
+   <widget class="QCheckBox" name="invert_teams">
+    <property name="geometry">
+     <rect>
+      <x>450</x>
+      <y>536</y>
+      <width>101</width>
+      <height>18</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Invert Teams</string>
+    </property>
+   </widget>
+   <widget class="QWidget" name="layoutWidget_3">
+    <property name="geometry">
+     <rect>
+      <x>730</x>
+      <y>526</y>
+      <width>171</width>
       <height>41</height>
      </rect>
     </property>
-    <layout class="QHBoxLayout" name="horizontalLayout_27">
+    <layout class="QHBoxLayout" name="horizontalLayout_12">
      <property name="spacing">
       <number>5</number>
-     </property>
-     <property name="sizeConstraint">
-      <enum>QLayout::SetDefaultConstraint</enum>
-     </property>
-     <property name="leftMargin">
-      <number>0</number>
      </property>
      <item>
       <widget class="QPushButton" name="scoreboard_ad_in">
@@ -4622,7 +4651,25 @@ p, li { white-space: pre-wrap; }
         </font>
        </property>
        <property name="text">
-        <string>AD IN</string>
+        <string>►</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="scoreboard_ad_auto">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Minimum" vsizetype="Expanding">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="font">
+        <font>
+         <family>Helvetica Neue</family>
+        </font>
+       </property>
+       <property name="text">
+        <string>► 5s</string>
        </property>
       </widget>
      </item>
@@ -4637,39 +4684,108 @@ p, li { white-space: pre-wrap; }
        <property name="font">
         <font>
          <family>Helvetica Neue</family>
+         <pointsize>8</pointsize>
+         <weight>50</weight>
+         <bold>false</bold>
         </font>
        </property>
        <property name="text">
-        <string>AD OUT</string>
+        <string>█</string>
        </property>
       </widget>
      </item>
     </layout>
    </widget>
-   <widget class="Line" name="line_6">
+   <widget class="QLabel" name="label_26">
     <property name="geometry">
      <rect>
-      <x>240</x>
-      <y>580</y>
-      <width>701</width>
+      <x>0</x>
+      <y>510</y>
+      <width>81</width>
       <height>20</height>
      </rect>
     </property>
-    <property name="orientation">
-     <enum>Qt::Horizontal</enum>
-    </property>
-   </widget>
-   <widget class="QCheckBox" name="invert_teams">
-    <property name="geometry">
-     <rect>
-      <x>450</x>
-      <y>560</y>
-      <width>101</width>
-      <height>18</height>
-     </rect>
+    <property name="font">
+     <font>
+      <family>Helvetica Neue</family>
+      <pointsize>11</pointsize>
+      <weight>75</weight>
+      <bold>true</bold>
+     </font>
     </property>
     <property name="text">
-     <string>Invert Teams</string>
+     <string>TCP packets:</string>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_27">
+    <property name="geometry">
+     <rect>
+      <x>-10</x>
+      <y>520</y>
+      <width>91</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <family>Helvetica Neue</family>
+      <pointsize>11</pointsize>
+      <weight>75</weight>
+      <bold>true</bold>
+     </font>
+    </property>
+    <property name="text">
+     <string>TCP timeouts:</string>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+    </property>
+   </widget>
+   <widget class="QLabel" name="tcp_packets">
+    <property name="geometry">
+     <rect>
+      <x>90</x>
+      <y>510</y>
+      <width>141</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <family>Helvetica Neue</family>
+      <pointsize>11</pointsize>
+     </font>
+    </property>
+    <property name="text">
+     <string>0</string>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+    </property>
+   </widget>
+   <widget class="QLabel" name="tcp_timeouts">
+    <property name="geometry">
+     <rect>
+      <x>90</x>
+      <y>520</y>
+      <width>141</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <family>Helvetica Neue</family>
+      <pointsize>11</pointsize>
+     </font>
+    </property>
+    <property name="text">
+     <string>0</string>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
     </property>
    </widget>
   </widget>

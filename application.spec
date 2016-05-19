@@ -1,7 +1,7 @@
 # -*- mode: python -*-
 a = Analysis(['application.py'],
-             pathex=['C:\Users\XYK\Desktop\Dropbox\Choxue-casparcg'],
-             #pathex=['/Users/XYK/Desktop/Dropbox/Choxue-casparcg'],
+            # pathex=['C:\Users\XYK\Desktop\Dropbox\Choxue-casparcg'],
+             pathex=['/Users/XYK/Desktop/Dropbox/Choxue-casparcg'],
              hiddenimports=[],
              hookspath=None,
              runtime_hooks=None)
